@@ -1,61 +1,33 @@
 import "server-only";
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
-import { AnalysisSchema, type Analysis, type Locale } from "./schema";
+import type { Analysis, Locale } from "./schema";
+import { analyzeWithClaude } from "./providers/claude";
+import { analyzeWithGemini } from "./providers/gemini";
+import { AnalysisError, type ImageInput } from "./providers/shared";
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-5-5";
+export { AnalysisError, AuthError, RateLimitError } from "./providers/shared";
 
-const SYSTEM = `You are a registered dietitian estimating the nutrition of a meal from a single photo.
-Identify each distinct food or drink that is visible. For each, estimate a realistic portion using visual cues
-(plate size, utensils, hands, packaging) and give grams, kilocalories, protein, carbs and fat for that portion,
-based on standard food composition data. Account for likely hidden calories such as cooking oil, butter, sauces and dressings,
-listing them as their own items when they are significant. Prefer typical home or restaurant portions when unsure,
-and lower the confidence instead of guessing wildly. If the photo does not show food or drink, set isFood to false and return no items.`;
+export type Provider = "claude" | "gemini";
 
-const LANGUAGE: Record<Locale, string> = { en: "English", fa: "Persian (Farsi)" };
-
-let client: Anthropic | null = null;
-
-export function isLiveMode() {
-  return Boolean(process.env.ANTHROPIC_API_KEY) && process.env.DEMO_MODE !== "true";
+/**
+ * Which model provider to use, from the keys that are set.
+ * AI_PROVIDER picks one explicitly when both keys exist; Claude wins otherwise.
+ * Returns null for demo mode.
+ */
+export function activeProvider(): Provider | null {
+  if (process.env.DEMO_MODE === "true") return null;
+  const hasClaude = Boolean(process.env.ANTHROPIC_API_KEY);
+  const hasGemini = Boolean(process.env.GEMINI_API_KEY);
+  const preferred = process.env.AI_PROVIDER;
+  if (preferred === "gemini" && hasGemini) return "gemini";
+  if (preferred === "claude" && hasClaude) return "claude";
+  if (hasClaude) return "claude";
+  if (hasGemini) return "gemini";
+  return null;
 }
 
-export class AnalysisError extends Error {}
-
-export async function analyzeImage(dataUrl: string, locale: Locale): Promise<Analysis> {
-  client ??= new Anthropic();
+export async function analyzeImage(provider: Provider, dataUrl: string, locale: Locale): Promise<Analysis> {
   const [, mediaType, data] = dataUrl.match(/^data:(image\/[a-z]+);base64,(.+)$/) ?? [];
   if (!mediaType || !data) throw new AnalysisError("Invalid image");
-
-  const response = await client.beta.messages.parse({
-    model: MODEL,
-    max_tokens: 16000,
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    system: SYSTEM,
-    output_config: { effort: "medium", format: zodOutputFormat(AnalysisSchema) },
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: mediaType as "image/jpeg" | "image/png" | "image/webp" | "image/gif",
-              data,
-            },
-          },
-          {
-            type: "text",
-            text: `Analyze this meal. Write dishName, item names, portions and notes in ${LANGUAGE[locale]}.`,
-          },
-        ],
-      },
-    ],
-  });
-
-  if (response.stop_reason === "refusal") throw new AnalysisError("The model declined to analyze this image");
-  if (!response.parsed_output) throw new AnalysisError("Could not read the analysis");
-  return response.parsed_output;
+  const image = { mediaType, data } as ImageInput;
+  return provider === "gemini" ? analyzeWithGemini(image, locale) : analyzeWithClaude(image, locale);
 }
