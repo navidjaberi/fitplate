@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kalori: calories from a photo
 
-## Getting Started
+Snap or drop a photo of a meal. Kalori identifies each food, estimates the portion, and returns calories, protein, carbs and fat. Adjust portions, log the meal, and track your day and week against a personal goal. Works in English and Persian (full RTL), in light and dark mode, on phones and desktops.
 
-First, run the development server:
+![Result screen](docs/result.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Today (Persian, RTL) | History | Mobile |
+| --- | --- | --- |
+| ![](docs/today-fa.png) | ![](docs/history.png) | ![](docs/mobile.png) |
+
+## Features
+
+- **Photo to nutrition.** Camera capture on phones, file upload, drag and drop, or paste from the clipboard. Photos are resized in the browser before upload.
+- **Per-item breakdown** with an editable portion multiplier and the ability to drop items the model got wrong; totals update live.
+- **Daily dashboard**: animated calorie ring, macro progress against targets, and the day's meals with thumbnails.
+- **7-day history** with a goal line, daily average and days on target.
+- **Goal calculator** using the Mifflin-St Jeor equation and an activity factor.
+- **Bilingual** (English / فارسی) with RTL layout, Persian digits and the Persian calendar via `Intl`.
+- **Demo mode**: without an API key the app returns realistic sample meals, so the whole flow can be shown without any cost.
+
+## Stack
+
+Next.js 16 (App Router, Route Handlers) · React 19 · TypeScript · Tailwind CSS v4 · Zustand (persisted to `localStorage`) · Motion · Zod · Claude API (vision + structured outputs) · Vitest
+
+## How it works
+
+```
+Browser                                  Server (Route Handler)                 Claude API
+───────                                  ──────────────────────                 ──────────
+pick photo → resize to ≤1280px JPEG  →   POST /api/analyze
+                                          validate with Zod
+                                          no key? → sample meal (demo)
+                                          else → image + prompt  ───────────→   vision model
+                                                                  ←───────────  JSON matching AnalysisSchema
+render result, edit portions       ←     { ok, mode, analysis }
+log meal → Zustand → localStorage
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The response shape is defined once in [`src/lib/schema.ts`](src/lib/schema.ts) as a Zod schema. The same schema validates requests, types the UI, and is sent to Claude as a structured-output format, so the model's answer is guaranteed to parse. The API key only ever lives on the server.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Run it
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+cp .env.example .env.local   # optional: add ANTHROPIC_API_KEY for real analysis
+npm run dev
+```
 
-## Learn More
+Open http://localhost:3000. Without a key the header shows **Demo mode**.
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Purpose |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Enables live analysis. Get one at https://console.anthropic.com |
+| `ANTHROPIC_MODEL` | Optional. Defaults to `claude-opus-5-5`; `claude-sonnet-5-5` costs about half |
+| `DEMO_MODE` | Set to `true` to force sample results even when a key is set (handy for a public demo) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev        # dev server
+npm run build      # production build
+npm test           # unit tests (nutrition math, dates, schemas)
+npm run lint
+npm run typecheck
+```
 
-## Deploy on Vercel
+## Project layout
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+  app/
+    api/analyze/route.ts   POST: photo → analysis; GET: live or demo mode
+    page.tsx               scanner + today
+    history/page.tsx       7-day history
+  components/              Scanner, AnalysisResult, TodayPanel, CalorieRing, WeekChart, SettingsDialog, …
+  lib/
+    analyze.ts             Claude call (server only)
+    schema.ts              Zod schemas shared by client and server
+    nutrition.ts           scaling, totals, goal math
+    store.ts               Zustand store with persistence
+    useScanner.ts          photo → API → result state machine
+    i18n.ts                English and Persian strings
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Nutrition values are estimates and not medical advice.
