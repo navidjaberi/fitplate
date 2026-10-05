@@ -256,11 +256,26 @@ const fa: Dict = {
 
 export const DICTS: Record<Locale, Dict> = { en, fa };
 
+const formatters = new Map<string, Intl.NumberFormat>();
+
+function makeNumberFormatter(tag: string) {
+  return (n: number, digits = 0) => {
+    const key = `${tag}:${digits}`;
+    let f = formatters.get(key);
+    if (!f) formatters.set(key, (f = new Intl.NumberFormat(tag, { maximumFractionDigits: digits })));
+    return f.format(n);
+  };
+}
+
+/** Stable per locale, so components can use `num` in effect dependencies. */
+const NUMBER_FORMATTERS: Record<Locale, (n: number, digits?: number) => string> = {
+  en: makeNumberFormatter("en-US"),
+  fa: makeNumberFormatter("fa-IR"),
+};
+
 export function useI18n() {
   const locale = useStore((s) => s.locale);
   const t = DICTS[locale];
   const tag = locale === "fa" ? "fa-IR" : "en-US";
-  const num = (n: number, digits = 0) =>
-    new Intl.NumberFormat(tag, { maximumFractionDigits: digits }).format(n);
-  return { locale, t, num, tag, dir: locale === "fa" ? ("rtl" as const) : ("ltr" as const) };
+  return { locale, t, num: NUMBER_FORMATTERS[locale], tag, dir: locale === "fa" ? ("rtl" as const) : ("ltr" as const) };
 }

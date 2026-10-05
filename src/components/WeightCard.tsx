@@ -6,6 +6,7 @@ import { Plus, TrendingDown, TrendingUp } from "lucide-react";
 import { parseDayKey } from "@/lib/date";
 import { parseLocalizedNumber } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { TiltCard } from "./ui/TiltCard";
 import { useStore, type WeightEntry } from "@/lib/store";
 
 const W = 320;
@@ -22,34 +23,56 @@ function WeightChart({ entries, target }: { entries: WeightEntry[]; target?: num
   const line = entries.map((e, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(e.kg).toFixed(1)}`).join(" ");
   const area = `${line} L${x(entries.length - 1)},${H} L${x(0)},${H} Z`;
 
+  const last = entries.at(-1);
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-32 w-full" preserveAspectRatio="none" aria-hidden>
-      <defs>
-        <linearGradient id="weight-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {target !== undefined && (
-        <line x1={0} x2={W} y1={y(target)} y2={y(target)} stroke="var(--muted)" strokeDasharray="4 4" strokeWidth={1} />
+    <div className="relative h-32">
+      <svg viewBox={`0 0 ${W} ${H}`} className="size-full overflow-visible" preserveAspectRatio="none" aria-hidden>
+        <defs>
+          <linearGradient id="weight-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+          </linearGradient>
+          {/* Reveal left to right; pathLength can't be used with a non-scaling stroke. */}
+          <clipPath id="weight-reveal">
+            <motion.rect
+              x={0}
+              y={-PAD}
+              height={H + 2 * PAD}
+              initial={{ width: 0 }}
+              animate={{ width: W }}
+              transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </clipPath>
+        </defs>
+        {target !== undefined && (
+          <line x1={0} x2={W} y1={y(target)} y2={y(target)} stroke="var(--muted)" strokeDasharray="4 4" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+        )}
+        <g clipPath="url(#weight-reveal)">
+          {entries.length > 1 && <path d={area} fill="url(#weight-fill)" />}
+          <path
+            d={line}
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+            style={{ filter: "drop-shadow(0 0 6px var(--glow))" }}
+          />
+        </g>
+      </svg>
+      {/* The latest point lives outside the stretched SVG so it stays round. */}
+      {last && (
+        <motion.span
+          className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent shadow-[0_0_0_4px_rgb(198_255_61/0.2),0_0_14px_var(--accent)]"
+          style={{ left: `${(x(entries.length - 1) / W) * 100}%`, top: `${(y(last.kg) / H) * 100}%` }}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 1, type: "spring", stiffness: 300, damping: 15 }}
+        />
       )}
-      {entries.length > 1 && <path d={area} fill="url(#weight-fill)" />}
-      <motion.path
-        d={line}
-        fill="none"
-        stroke="var(--accent)"
-        strokeWidth={2.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-      />
-      {entries.length > 0 && (
-        <circle cx={x(entries.length - 1)} cy={y(entries[entries.length - 1].kg)} r={4} fill="var(--accent)" />
-      )}
-    </svg>
+    </div>
   );
 }
 
@@ -76,9 +99,9 @@ export function WeightCard() {
   };
 
   return (
-    <section className="card flex flex-col p-5 sm:p-6">
+    <TiltCard className="flex flex-col p-5 sm:p-6">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-bold">{t.weightTitle}</h2>
+        <h2 className="font-display font-bold">{t.weightTitle}</h2>
         {latest && (
           <span className="text-xs text-muted">
             {parseDayKey(latest.day).toLocaleDateString(tag, { month: "short", day: "numeric" })}
@@ -89,7 +112,7 @@ export function WeightCard() {
       {latest ? (
         <>
           <div className="mt-2 flex items-end gap-3">
-            <span className="text-4xl font-extrabold tabular-nums">{num(latest.kg, 1)}</span>
+            <span className="font-display text-4xl font-bold tabular-nums">{num(latest.kg, 1)}</span>
             <span className="pb-1 text-muted">{t.kg}</span>
             {weights.length > 1 && (
               <span
@@ -119,11 +142,11 @@ export function WeightCard() {
           aria-label={`${t.weightTitle} (${t.kg})`}
           className="min-w-0 flex-1 rounded-full border border-line bg-surface-2 px-4 py-2.5 outline-none focus:border-accent"
         />
-        <button className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-bg">
+        <button className="inline-flex items-center gap-1.5 btn-primary rounded-full px-4 py-2.5 text-sm font-semibold">
           <Plus className="size-4" />
           {t.logWeight}
         </button>
       </form>
-    </section>
+    </TiltCard>
   );
 }

@@ -1,6 +1,6 @@
 # FitPlate: your nutrition and fitness dashboard
 
-FitPlate builds daily calorie and macro targets from your body and your goal, then helps you hit them. Log meals by snapping a photo (AI identifies each food and estimates its nutrition), track your weight against a target, and see your progress at a glance. Works in English and Persian (full RTL), in light and dark mode, on phones and desktops.
+FitPlate builds daily calorie and macro targets from your body and your goal, then helps you hit them. Log meals by snapping a photo (AI identifies each food and estimates its nutrition), track your weight against a target, and see your progress at a glance. Works in English and Persian (full RTL), on phones and desktops, with a dark glass interface and a real-time 3D scene on the dashboard.
 
 ![Dashboard](docs/dashboard.png)
 
@@ -8,9 +8,14 @@ FitPlate builds daily calorie and macro targets from your body and your goal, th
 | --- | --- | --- |
 | ![](docs/onboarding.png) | ![](docs/dashboard-fa.png) | ![](docs/mobile.png) |
 
+| Scan | Progress | Profile |
+| --- | --- | --- |
+| ![](docs/scan.png) | ![](docs/history.png) | ![](docs/profile.png) |
+
 ## Features
 
 - **Personal targets.** A short onboarding asks for sex, age, height, weight, activity and goal (lose, maintain or build muscle, with a target weight and weekly pace). Calories come from Mifflin-St Jeor maintenance plus or minus the deficit or surplus for that pace, with a safety floor; protein is set per kg of body weight, fat at 25% of calories, and carbs fill the rest. Targets can also be set by hand.
+- **3D dashboard.** A Three.js scene (React Three Fiber) shows today's calories as a glowing ring that fills toward the goal, with an orb per macro orbiting a distorted core; it follows the pointer, renders only while on screen, and falls back to a soft glow without WebGL. Cards tilt toward the cursor with a moving light, and numbers count up.
 - **Dashboard**: calories left today, macro progress, goal progress with weeks to go and BMI, a weight trend chart with quick logging, and today's meals. Targets follow your weight as you log it.
 - **Photo to nutrition.** Camera capture on phones, file upload, drag and drop, or paste from the clipboard. Each item gets an editable portion multiplier, and items the model got wrong can be removed.
 - **Progress**: 7-day calorie chart against the goal line, daily average and days on target.
@@ -24,7 +29,7 @@ FitPlate builds daily calorie and macro targets from your body and your goal, th
 
 ## Stack
 
-Next.js 16 (App Router, Route Handlers) · React 19 · TypeScript · Tailwind CSS v4 · Zustand (persisted to `localStorage`, with versioned migrations) · Motion · Zod · Claude API or Google Gemini (vision + structured JSON output) · Vitest
+Next.js 16 (App Router, Route Handlers) · React 19 · TypeScript · Tailwind CSS v4 · Zustand (persisted to `localStorage`, with versioned migrations) · Motion · Three.js (React Three Fiber, drei, postprocessing) · Zod · Claude API or Google Gemini (vision + structured JSON output) · Vitest
 
 ## How it works
 

@@ -41,27 +41,36 @@ export function Onboarding() {
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-6 text-center">
-        <h1 className="text-3xl font-extrabold tracking-tight">{t.obWelcome}</h1>
+        <h1 className="font-display text-gradient text-3xl font-bold tracking-tight sm:text-4xl">{t.obWelcome}</h1>
         <p className="mt-2 text-muted">{t.obIntro}</p>
       </div>
 
       <ol className="mb-6 grid grid-cols-4 gap-2" aria-label="progress">
         {t.obSteps.map((label, i) => (
           <li key={label} className="text-center">
-            <div className={`h-1.5 rounded-full transition-colors ${i <= step ? "bg-accent" : "bg-line"}`} />
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+              <motion.div
+                className="h-full rounded-full bg-accent shadow-[0_0_12px_var(--glow)]"
+                initial={false}
+                animate={{ width: i <= step ? "100%" : "0%" }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
             <span className={`mt-2 block text-xs ${i === step ? "font-semibold text-ink" : "text-muted"}`}>{label}</span>
           </li>
         ))}
       </ol>
 
-      <section className="card overflow-hidden p-5 sm:p-7">
+      <section className="card overflow-hidden bg-surface/85 p-5 [backdrop-filter:none] sm:p-7">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: dir === "rtl" ? -24 : 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: dir === "rtl" ? 24 : -24 }}
-            transition={{ duration: 0.2 }}
+            // Steps turn like pages of a card in 3D.
+            initial={{ opacity: 0, rotateY: dir === "rtl" ? 35 : -35, x: dir === "rtl" ? -30 : 30 }}
+            animate={{ opacity: 1, rotateY: 0, x: 0 }}
+            style={{ transformPerspective: 1200 }}
+            exit={{ opacity: 0, rotateY: dir === "rtl" ? -35 : 35, x: dir === "rtl" ? 30 : -30 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
             {step === 0 && <BodyFields value={profile} onChange={setProfile} />}
             {step === 1 && (
@@ -92,7 +101,7 @@ export function Onboarding() {
             type="button"
             disabled={!canContinue}
             onClick={() => (step === last ? finish() : setStep((s) => s + 1))}
-            className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-semibold text-accent-ink shadow-lg shadow-accent/25 transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-40"
+            className="btn-primary inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold disabled:opacity-40"
           >
             {step === last ? t.finish : t.next}
             {step === last ? <Check className="size-4" /> : <Next className="size-4" />}

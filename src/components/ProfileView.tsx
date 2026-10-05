@@ -21,7 +21,10 @@ import {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="card p-5 sm:p-6">
-      <h2 className="mb-4 text-lg font-bold">{title}</h2>
+      <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+        <span className="size-2 rounded-full bg-accent shadow-[0_0_10px_var(--glow)]" />
+        {title}
+      </h2>
       {children}
     </section>
   );
@@ -50,7 +53,7 @@ export function ProfileView() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-3xl font-extrabold tracking-tight">{t.profileTitle}</h1>
+      <h1 className="font-display text-gradient text-3xl font-bold tracking-tight sm:text-4xl">{t.profileTitle}</h1>
 
       <Section title={t.bodySection}>
         <BodyFields value={profile} onChange={setProfile} />
@@ -91,7 +94,7 @@ export function ProfileView() {
                   store.setCustomTargets(null);
                   setEditing(false);
                 }}
-                className="rounded-full border border-line px-4 py-2 font-medium hover:border-ink/30"
+                className="btn-ghost rounded-full px-4 py-2 font-medium"
               >
                 {t.resetTargets}
               </button>
@@ -102,7 +105,7 @@ export function ProfileView() {
                   setCustom(store.customTargets ? store.goal : computed);
                   setEditing(true);
                 }}
-                className="rounded-full border border-line px-4 py-2 font-medium hover:border-ink/30"
+                className="btn-ghost rounded-full px-4 py-2 font-medium"
               >
                 {t.editTargets}
               </button>
@@ -112,12 +115,12 @@ export function ProfileView() {
       </Section>
 
       <Section title={t.language}>
-        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-surface-2 p-1">
+        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-white/[0.04] p-1">
           {(["en", "fa"] as const).map((l) => (
             <button
               key={l}
               onClick={() => store.setLocale(l)}
-              className={`rounded-xl py-2.5 font-medium transition ${locale === l ? "bg-surface shadow-sm" : "text-muted"}`}
+              className={`rounded-xl py-2.5 font-medium transition ${locale === l ? "seg-on" : "text-muted"}`}
             >
               {l === "en" ? "English" : "فارسی"}
             </button>
@@ -125,7 +128,7 @@ export function ProfileView() {
         </div>
       </Section>
 
-      <div className="sticky bottom-20 z-20 flex items-center justify-between gap-3 rounded-full border border-line bg-surface/90 p-2 ps-5 shadow-lg backdrop-blur md:bottom-4">
+      <div className="sticky bottom-20 z-20 flex items-center justify-between gap-3 rounded-full border border-line bg-bg/70 p-2 ps-5 shadow-[0_20px_50px_-15px_rgb(0_0_0/0.9)] backdrop-blur-xl md:bottom-4">
         <button
           onClick={() => window.confirm(t.clearConfirm) && store.clearAll()}
           className="text-sm font-medium text-protein hover:underline"
@@ -135,7 +138,7 @@ export function ProfileView() {
         <button
           onClick={save}
           disabled={!valid}
-          className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-2.5 font-semibold text-bg disabled:opacity-40"
+          className="btn-primary inline-flex items-center gap-2 rounded-full px-6 py-2.5 font-semibold disabled:opacity-40"
         >
           {saved && <Check className="size-4" />}
           {saved ? t.saved : t.save}
