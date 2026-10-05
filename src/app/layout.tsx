@@ -9,8 +9,8 @@ const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin
 const vazir = Vazirmatn({ variable: "--font-vazir", subsets: ["arabic", "latin"] });
 
 export const metadata: Metadata = {
-  title: "Kalori · Calories from a photo",
-  description: "Snap a photo of your meal and get calories and macros in seconds.",
+  title: "FitPlate · Nutrition and fitness dashboard",
+  description: "Personal calorie and macro targets, photo-based meal logging, and progress tracking.",
 };
 
 export const viewport: Viewport = {

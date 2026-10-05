@@ -1,26 +1,30 @@
-# Kalori: calories from a photo
+# FitPlate: your nutrition and fitness dashboard
 
-Snap or drop a photo of a meal. Kalori identifies each food, estimates the portion, and returns calories, protein, carbs and fat. Adjust portions, log the meal, and track your day and week against a personal goal. Works in English and Persian (full RTL), in light and dark mode, on phones and desktops.
+FitPlate builds daily calorie and macro targets from your body and your goal, then helps you hit them. Log meals by snapping a photo (AI identifies each food and estimates its nutrition), track your weight against a target, and see your progress at a glance. Works in English and Persian (full RTL), in light and dark mode, on phones and desktops.
 
-![Result screen](docs/result.png)
+![Dashboard](docs/dashboard.png)
 
-| Today (Persian, RTL) | History | Mobile |
+| Onboarding | Persian (RTL) | Mobile |
 | --- | --- | --- |
-| ![](docs/today-fa.png) | ![](docs/history.png) | ![](docs/mobile.png) |
+| ![](docs/onboarding.png) | ![](docs/dashboard-fa.png) | ![](docs/mobile.png) |
 
 ## Features
 
-- **Photo to nutrition.** Camera capture on phones, file upload, drag and drop, or paste from the clipboard. Photos are resized in the browser before upload.
-- **Per-item breakdown** with an editable portion multiplier and the ability to drop items the model got wrong; totals update live.
-- **Daily dashboard**: animated calorie ring, macro progress against targets, and the day's meals with thumbnails.
-- **7-day history** with a goal line, daily average and days on target.
-- **Goal calculator** using the Mifflin-St Jeor equation and an activity factor.
-- **Bilingual** (English / فارسی) with RTL layout, Persian digits and the Persian calendar via `Intl`.
+- **Personal targets.** A short onboarding asks for sex, age, height, weight, activity and goal (lose, maintain or build muscle, with a target weight and weekly pace). Calories come from Mifflin-St Jeor maintenance plus or minus the deficit or surplus for that pace, with a safety floor; protein is set per kg of body weight, fat at 25% of calories, and carbs fill the rest. Targets can also be set by hand.
+- **Dashboard**: calories left today, macro progress, goal progress with weeks to go and BMI, a weight trend chart with quick logging, and today's meals. Targets follow your weight as you log it.
+- **Photo to nutrition.** Camera capture on phones, file upload, drag and drop, or paste from the clipboard. Each item gets an editable portion multiplier, and items the model got wrong can be removed.
+- **Progress**: 7-day calorie chart against the goal line, daily average and days on target.
+- **Bilingual** (English / فارسی) with RTL layout, Persian digits, Persian-digit input and the Persian calendar via `Intl`.
 - **Demo mode**: without an API key the app returns realistic sample meals, so the whole flow can be shown without any cost.
+
+## Roadmap
+
+- Workout plans: weekly program, set and rep logging, and AI-suggested plans from your goal and equipment.
+- Accounts and a database so each user's data follows them across devices, then a Vercel deployment.
 
 ## Stack
 
-Next.js 16 (App Router, Route Handlers) · React 19 · TypeScript · Tailwind CSS v4 · Zustand (persisted to `localStorage`) · Motion · Zod · Claude API or Google Gemini (vision + structured JSON output) · Vitest
+Next.js 16 (App Router, Route Handlers) · React 19 · TypeScript · Tailwind CSS v4 · Zustand (persisted to `localStorage`, with versioned migrations) · Motion · Zod · Claude API or Google Gemini (vision + structured JSON output) · Vitest
 
 ## How it works
 
@@ -73,14 +77,17 @@ npm run typecheck
 src/
   app/
     api/analyze/route.ts   POST: photo → analysis; GET: live or demo mode
-    page.tsx               scanner + today
-    history/page.tsx       7-day history
-  components/              Scanner, AnalysisResult, TodayPanel, CalorieRing, WeekChart, SettingsDialog, …
+    page.tsx               dashboard
+    onboarding/page.tsx    profile and goal setup
+    scan/page.tsx          photo scanner + today
+    history/page.tsx       7-day progress
+    profile/page.tsx       edit profile, goal and targets
+  components/              Dashboard, Onboarding, PlanForm, WeightCard, GoalCard, Scanner, AnalysisResult, …
   lib/
     analyze.ts             picks the provider from the keys that are set (server only)
     providers/             claude.ts, gemini.ts, shared prompt and errors
     schema.ts              Zod schemas shared by client and server
-    nutrition.ts           scaling, totals, goal math
+    nutrition.ts           scaling, totals, maintenance and goal-based targets
     store.ts               Zustand store with persistence
     useScanner.ts          photo → API → result state machine
     i18n.ts                English and Persian strings

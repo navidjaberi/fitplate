@@ -10,7 +10,7 @@ import { MacroBar } from "./MacroBar";
 import { MealCard } from "./MealCard";
 import { useApp } from "./Providers";
 
-export function TodayPanel() {
+export function TodayPanel({ showMeals = true }: { showMeals?: boolean }) {
   const { t, num, tag } = useI18n();
   const { hydrated } = useApp();
   const meals = useStore((s) => s.meals);
@@ -50,19 +50,21 @@ export function TodayPanel() {
         <MacroBar macro="fat" value={totals.fat} target={goal.fat} />
       </div>
 
-      <div className="mt-6 border-t border-line pt-4">
-        {today.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted">{t.noMeals}</p>
-        ) : (
-          <ul className="-mx-2 space-y-1">
-            <AnimatePresence initial={false}>
-              {today.map((m) => (
-                <MealCard key={m.id} meal={m} />
-              ))}
-            </AnimatePresence>
-          </ul>
-        )}
-      </div>
+      {showMeals && (
+        <div className="mt-6 border-t border-line pt-4">
+          {today.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted">{t.noMeals}</p>
+          ) : (
+            <ul className="-mx-2 space-y-1">
+              <AnimatePresence initial={false}>
+                {today.map((m) => (
+                  <MealCard key={m.id} meal={m} />
+                ))}
+              </AnimatePresence>
+            </ul>
+          )}
+        </div>
+      )}
     </section>
   );
 }
