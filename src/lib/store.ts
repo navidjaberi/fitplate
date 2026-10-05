@@ -5,6 +5,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { dayKey } from "./date";
 import { macroTargets, planTargets, sumMacros, type Activity, type GoalPlan, type Macros, type Sex } from "./nutrition";
 import type { FoodItem, Locale } from "./schema";
+import { buildProgram, startLog, type LoggedSet, type Program, type WorkoutLog, type WorkoutSetup } from "./workouts";
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -32,6 +33,11 @@ type State = {
   customTargets: boolean;
   meals: Meal[];
   weights: WeightEntry[];
+  program: Program | null;
+  /** Finished sessions, newest first. */
+  workouts: WorkoutLog[];
+  /** The session in progress, kept here so a reload doesn't lose it. */
+  activeWorkout: WorkoutLog | null;
   setLocale: (locale: Locale) => void;
   /** Save profile and goal from onboarding or the profile page, and recompute targets. */
   setPlan: (profile: Profile, plan: GoalPlan) => void;
@@ -40,6 +46,15 @@ type State = {
   logWeight: (kg: number) => void;
   addMeal: (meal: Omit<Meal, "id" | "day" | "createdAt" | "totals">) => void;
   removeMeal: (id: string) => void;
+  /** Build (or rebuild) the weekly program from the setup and the current goal. */
+  createProgram: (setup: WorkoutSetup) => void;
+  /** Start a session for one of the program's days. */
+  startWorkout: (dayIndex: number) => void;
+  updateSet: (exercise: number, set: number, patch: Partial<LoggedSet>) => void;
+  addSet: (exercise: number) => void;
+  finishWorkout: () => void;
+  discardWorkout: () => void;
+  removeWorkout: (id: string) => void;
   clearAll: () => void;
 };
 
@@ -61,6 +76,9 @@ export const useStore = create<State>()(
       customTargets: false,
       meals: [],
       weights: [],
+      program: null,
+      workouts: [],
+      activeWorkout: null,
       setLocale: (locale) => set({ locale }),
       setPlan: (profile, plan) =>
         set((s) => ({
@@ -99,18 +117,58 @@ export const useStore = create<State>()(
           };
         }),
       removeMeal: (id) => set((s) => ({ meals: s.meals.filter((m) => m.id !== id) })),
-      clearAll: () => set({ meals: [], weights: [] }),
+      createProgram: (setup) => set((s) => ({ program: buildProgram(setup, s.plan?.type ?? "maintain") })),
+      startWorkout: (dayIndex) =>
+        set((s) => {
+          const day = s.program?.days[dayIndex];
+          return day ? { activeWorkout: startLog(day, s.workouts, dayKey()) } : {};
+        }),
+      updateSet: (exercise, setIndex, patch) =>
+        set((s) => {
+          if (!s.activeWorkout) return {};
+          const entries = s.activeWorkout.entries.map((e, i) =>
+            i !== exercise ? e : { ...e, sets: e.sets.map((x, j) => (j === setIndex ? { ...x, ...patch } : x)) },
+          );
+          return { activeWorkout: { ...s.activeWorkout, entries } };
+        }),
+      addSet: (exercise) =>
+        set((s) => {
+          if (!s.activeWorkout) return {};
+          const entries = s.activeWorkout.entries.map((e, i) => {
+            if (i !== exercise) return e;
+            const last = e.sets.at(-1) ?? { kg: 0, reps: 8, done: false };
+            return { ...e, sets: [...e.sets, { ...last, done: false }] };
+          });
+          return { activeWorkout: { ...s.activeWorkout, entries } };
+        }),
+      finishWorkout: () =>
+        set((s) => {
+          if (!s.activeWorkout) return {};
+          // Keep only exercises with at least one completed set.
+          const entries = s.activeWorkout.entries
+            .map((e) => ({ ...e, sets: e.sets.filter((x) => x.done) }))
+            .filter((e) => e.sets.length);
+          if (!entries.length) return { activeWorkout: null };
+          const log = { ...s.activeWorkout, entries, finishedAt: new Date().toISOString() };
+          return { activeWorkout: null, workouts: [log, ...s.workouts] };
+        }),
+      discardWorkout: () => set({ activeWorkout: null }),
+      removeWorkout: (id) => set((s) => ({ workouts: s.workouts.filter((w) => w.id !== id) })),
+      clearAll: () => set({ meals: [], weights: [], workouts: [], activeWorkout: null }),
     }),
     {
       name: "fitplate",
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => localStorage),
       skipHydration: true,
       migrate: (persisted, version) => {
         const state = persisted as Partial<State>;
         // v1 had a hand-set calorie goal and no plan or weight log.
-        if (version < 2) return { ...state, plan: null, customTargets: true, weights: [] } as State;
-        return state as State;
+        let next = state;
+        if (version < 2) next = { ...next, plan: null, customTargets: true, weights: [] };
+        // v3 adds workout programs and logs.
+        if (version < 3) next = { ...next, program: null, workouts: [], activeWorkout: null };
+        return next as State;
       },
     },
   ),
