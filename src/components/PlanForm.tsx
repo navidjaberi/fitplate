@@ -41,7 +41,7 @@ function NumberInput({ value, onChange, min, max, step = 1 }: { value: number; o
   );
 }
 
-function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
+export function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <button
       type="button"

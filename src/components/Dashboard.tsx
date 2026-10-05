@@ -14,6 +14,7 @@ import { MealCard } from "./MealCard";
 import { useApp } from "./Providers";
 import { TiltCard } from "./ui/TiltCard";
 import { WeightCard } from "./WeightCard";
+import { TodayWorkoutCard } from "./workouts/TodayWorkoutCard";
 
 function greetingKey(hour: number) {
   if (hour < 12) return "morning";
@@ -92,22 +93,27 @@ export function Dashboard() {
           <WeightCard />
         </motion.div>
 
-        <motion.div variants={item} className="min-w-0">
-          <TiltCard className="p-5 sm:p-6">
-            <h2 className="font-display mb-2 font-bold">{t.today}</h2>
-            {today.length === 0 ? (
-              <p className="py-4 text-sm text-muted">{t.noMeals}</p>
-            ) : (
-              <ul className="-mx-2 space-y-1">
-                <AnimatePresence initial={false}>
-                  {today.map((m) => (
-                    <MealCard key={m.id} meal={m} />
-                  ))}
-                </AnimatePresence>
-              </ul>
-            )}
-          </TiltCard>
-        </motion.div>
+        <div className="min-w-0 space-y-5">
+          <motion.div variants={item}>
+            <TodayWorkoutCard />
+          </motion.div>
+          <motion.div variants={item}>
+            <TiltCard className="p-5 sm:p-6">
+              <h2 className="font-display mb-2 font-bold">{t.today}</h2>
+              {today.length === 0 ? (
+                <p className="py-4 text-sm text-muted">{t.noMeals}</p>
+              ) : (
+                <ul className="-mx-2 space-y-1">
+                  <AnimatePresence initial={false}>
+                    {today.map((m) => (
+                      <MealCard key={m.id} meal={m} />
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              )}
+            </TiltCard>
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );

@@ -12,19 +12,24 @@ FitPlate builds daily calorie and macro targets from your body and your goal, th
 | --- | --- | --- |
 | ![](docs/scan.png) | ![](docs/history.png) | ![](docs/profile.png) |
 
+| Workout plan | Logging a session (Persian, mobile) |
+| --- | --- |
+| ![](docs/workouts.png) | ![](docs/workout-session.png) |
+
 ## Features
 
 - **Personal targets.** A short onboarding asks for sex, age, height, weight, activity and goal (lose, maintain or build muscle, with a target weight and weekly pace). Calories come from Mifflin-St Jeor maintenance plus or minus the deficit or surplus for that pace, with a safety floor; protein is set per kg of body weight, fat at 25% of calories, and carbs fill the rest. Targets can also be set by hand.
 - **3D dashboard.** A Three.js scene (React Three Fiber) shows today's calories as a glowing ring that fills toward the goal, with an orb per macro orbiting a distorted core; it follows the pointer, renders only while on screen, and falls back to a soft glow without WebGL. Cards tilt toward the cursor with a moving light, and numbers count up.
 - **Dashboard**: calories left today, macro progress, goal progress with weeks to go and BMI, a weight trend chart with quick logging, and today's meals. Targets follow your weight as you log it.
 - **Photo to nutrition.** Camera capture on phones, file upload, drag and drop, or paste from the clipboard. Each item gets an editable portion multiplier, and items the model got wrong can be removed.
+- **Workout plans.** Pick training days, equipment (full gym, dumbbells or none) and experience, and FitPlate builds a weekly split (full body, upper/lower or push/pull/legs) with sets, rep ranges and rest set by your goal. Log each session set by set with a rest timer; the next session prefills your last loads and adds 2.5 kg once you hit the top of the rep range on every set. The dashboard shows today's workout and the week at a glance.
 - **Progress**: 7-day calorie chart against the goal line, daily average and days on target.
 - **Bilingual** (English / فارسی) with RTL layout, Persian digits, Persian-digit input and the Persian calendar via `Intl`.
 - **Demo mode**: without an API key the app returns realistic sample meals, so the whole flow can be shown without any cost.
 
 ## Roadmap
 
-- Workout plans: weekly program, set and rep logging, and AI-suggested plans from your goal and equipment.
+- AI-suggested workout plans and exercise swaps.
 - Accounts and a database so each user's data follows them across devices, then a Vercel deployment.
 
 ## Stack
