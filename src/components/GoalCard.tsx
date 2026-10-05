@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { Pencil, Target } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { TiltCard } from "./ui/TiltCard";
 import { bmi, weeksToGoal } from "@/lib/nutrition";
 import { useStore } from "@/lib/store";
 
@@ -22,7 +23,7 @@ export function GoalCard() {
   const progress = plan.type === "maintain" || span === 0 ? 1 : Math.min(done / span, 1);
 
   return (
-    <section className="card p-5 sm:p-6">
+    <TiltCard className="p-5 sm:p-6">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-xl bg-accent/12 text-accent">
@@ -30,10 +31,10 @@ export function GoalCard() {
           </div>
           <div>
             <div className="text-xs text-muted">{t.goalTitle}</div>
-            <h2 className="font-bold">{t.goalTypes[plan.type]}</h2>
+            <h2 className="font-display font-bold">{t.goalTypes[plan.type]}</h2>
           </div>
         </div>
-        <Link href="/profile" aria-label={t.navProfile} className="rounded-full p-2 text-muted hover:bg-surface-2 hover:text-ink">
+        <Link href="/profile" aria-label={t.navProfile} className="rounded-full p-2 text-muted hover:bg-white/5 hover:text-ink">
           <Pencil className="size-4" />
         </Link>
       </div>
@@ -50,7 +51,7 @@ export function GoalCard() {
           </div>
           <div className="h-2.5 overflow-hidden rounded-full bg-surface-2">
             <motion.div
-              className="h-full rounded-full bg-accent"
+              className="h-full rounded-full bg-accent shadow-[0_0_12px_var(--glow)]"
               initial={{ width: 0 }}
               animate={{ width: `${progress * 100}%` }}
               transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
@@ -60,22 +61,22 @@ export function GoalCard() {
         </div>
       )}
 
-      <dl className="mt-5 grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-2xl bg-surface-2 p-3">
+      <dl className="mt-5 grid grid-cols-3 gap-2 text-center [&>div]:px-1.5">
+        <div className="rounded-2xl border border-line bg-white/[0.03] p-3">
           <dd className="font-bold tabular-nums">{num(bmi(current, profile.heightCm), 1)}</dd>
           <dt className="text-xs text-muted">{t.bmi}</dt>
         </div>
-        <div className="rounded-2xl bg-surface-2 p-3">
+        <div className="rounded-2xl border border-line bg-white/[0.03] p-3">
           <dd className="font-bold tabular-nums">{plan.type === "maintain" ? "—" : num(plan.pace, 2)}</dd>
           <dt className="text-xs text-muted">
             {t.kg} {t.perWeek}
           </dt>
         </div>
-        <div className="rounded-2xl bg-surface-2 p-3">
-          <dd className="font-bold">{t.activities[profile.activity]}</dd>
+        <div className="rounded-2xl border border-line bg-white/[0.03] p-3">
+          <dd className="truncate text-[13px] leading-6 font-bold">{t.activities[profile.activity]}</dd>
           <dt className="text-xs text-muted">{t.activity}</dt>
         </div>
       </dl>
-    </section>
+    </TiltCard>
   );
 }

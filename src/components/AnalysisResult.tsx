@@ -14,9 +14,9 @@ const STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 const MEAL_TYPES: MealType[] = ["breakfast", "lunch", "snack", "dinner"];
 
 const CONFIDENCE_STYLE = {
-  low: "bg-protein/15 text-protein",
-  medium: "bg-carbs/15 text-carbs",
-  high: "bg-fat/15 text-fat",
+  low: "bg-protein/25 text-protein",
+  medium: "bg-carbs/25 text-carbs",
+  high: "bg-fat/25 text-fat",
 };
 
 type Props = { image: string; analysis: Analysis; mode: "live" | "demo"; onReset: () => void };
@@ -67,7 +67,7 @@ export function AnalysisResult({ image, analysis, mode, onReset }: Props) {
           <div>
             <div className="mb-2 flex flex-wrap gap-2 text-xs font-semibold">
               {analysis.isFood && (
-                <span className={`rounded-full bg-white/90 px-2.5 py-1 ${CONFIDENCE_STYLE[analysis.confidence]}`}>
+                <span className={`rounded-full px-2.5 py-1 backdrop-blur ${CONFIDENCE_STYLE[analysis.confidence]}`}>
                   {t.confidence[analysis.confidence]}
                 </span>
               )}
@@ -77,11 +77,11 @@ export function AnalysisResult({ image, analysis, mode, onReset }: Props) {
                 </span>
               )}
             </div>
-            <h2 className="text-2xl font-extrabold leading-tight sm:text-3xl">{analysis.dishName}</h2>
+            <h2 className="font-display text-2xl font-bold leading-tight sm:text-3xl">{analysis.dishName}</h2>
           </div>
           {analysis.isFood && (
             <div className="shrink-0 text-end">
-              <div className="text-4xl font-extrabold tabular-nums sm:text-5xl">{num(totals.calories)}</div>
+              <div className="font-display text-4xl font-bold tabular-nums text-accent drop-shadow-[0_0_18px_var(--glow)] sm:text-5xl">{num(totals.calories)}</div>
               <div className="text-sm opacity-80">{t.kcal}</div>
             </div>
           )}
@@ -99,7 +99,7 @@ export function AnalysisResult({ image, analysis, mode, onReset }: Props) {
             <MacroSplitBar split={split} />
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
               {(["protein", "carbs", "fat"] as const).map((k) => (
-                <div key={k} className="rounded-2xl bg-surface-2 px-2 py-3">
+                <div key={k} className="rounded-2xl border border-line bg-white/[0.03] px-2 py-3">
                   <div className="text-xl font-bold tabular-nums" style={{ color: `var(--${k})` }}>
                     {num(totals[k], 1)}
                     <span className="ms-0.5 text-xs font-medium">{t.g}</span>
@@ -165,20 +165,20 @@ export function AnalysisResult({ image, analysis, mode, onReset }: Props) {
           </div>
 
           {analysis.notes && (
-            <p className="flex gap-2 rounded-2xl bg-surface-2 p-3 text-sm text-muted">
+            <p className="flex gap-2 rounded-2xl border border-line bg-white/[0.03] p-3 text-sm text-muted">
               <Info className="mt-0.5 size-4 shrink-0" />
               {analysis.notes}
             </p>
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex flex-1 rounded-full bg-surface-2 p-1 text-sm">
+            <div className="flex flex-1 rounded-full bg-white/[0.04] p-1 text-sm">
               {MEAL_TYPES.map((m) => (
                 <button
                   key={m}
                   onClick={() => setMealType(m)}
                   className={`flex-1 rounded-full px-2 py-2 font-medium transition ${
-                    mealType === m ? "bg-surface shadow-sm" : "text-muted hover:text-ink"
+                    mealType === m ? "seg-on" : "text-muted hover:text-ink"
                   }`}
                 >
                   {t.mealTypes[m]}
@@ -190,7 +190,7 @@ export function AnalysisResult({ image, analysis, mode, onReset }: Props) {
               <button
                 onClick={save}
                 disabled={saved || items.length === 0}
-                className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-ink px-6 py-3 font-semibold text-bg transition hover:opacity-90 disabled:opacity-60 sm:flex-none"
+                className="btn-primary inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 font-semibold disabled:opacity-60 sm:flex-none"
               >
                 {saved ? <Check className="size-5" /> : <Plus className="size-5" />}
                 {saved ? t.added : t.addToLog}
@@ -207,7 +207,7 @@ function ResetButton({ onClick, label }: { onClick: () => void; label: string })
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-line px-4 py-3 text-sm font-semibold transition hover:border-ink/30"
+      className="btn-ghost inline-flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold"
     >
       <RotateCcw className="size-4" />
       {label}

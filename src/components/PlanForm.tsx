@@ -15,7 +15,7 @@ export const DEFAULT_PROFILE: Profile = { sex: "male", age: 28, heightCm: 175, w
 export const DEFAULT_PLAN: GoalPlan = { type: "lose", pace: 0.5, targetWeightKg: 70 };
 
 export const inputClass =
-  "w-full rounded-2xl border border-line bg-surface-2 px-4 py-3 text-base outline-none transition focus:border-accent focus:bg-surface";
+  "w-full rounded-2xl border border-line bg-surface-2 px-4 py-3 text-base outline-none transition focus:border-accent focus:shadow-[0_0_0_4px_rgb(198_255_61/0.12)]";
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -47,8 +47,10 @@ function Choice({ selected, onClick, children }: { selected: boolean; onClick: (
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`w-full rounded-2xl border p-4 text-start transition ${
-        selected ? "border-accent bg-accent/8 ring-2 ring-accent/30" : "border-line bg-surface hover:border-ink/25"
+      className={`w-full rounded-2xl border p-4 text-start transition duration-200 active:scale-[0.98] ${
+        selected
+          ? "border-accent/70 bg-accent/[0.07] shadow-[0_0_0_1px_var(--accent),0_12px_40px_-16px_var(--glow)]"
+          : "border-line bg-white/[0.03] hover:border-white/20"
       }`}
     >
       {children}
@@ -61,13 +63,13 @@ export function BodyFields({ value, onChange }: { value: Profile; onChange: (p: 
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) => onChange({ ...value, [k]: v });
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="col-span-2 grid grid-cols-2 gap-2 rounded-2xl bg-surface-2 p-1">
+      <div className="col-span-2 grid grid-cols-2 gap-2 rounded-2xl bg-white/[0.04] p-1">
         {(["male", "female"] as const).map((sex) => (
           <button
             key={sex}
             type="button"
             onClick={() => set("sex", sex)}
-            className={`rounded-xl py-2.5 font-medium transition ${value.sex === sex ? "bg-surface shadow-sm" : "text-muted"}`}
+            className={`rounded-xl py-2.5 font-medium transition ${value.sex === sex ? "seg-on" : "text-muted"}`}
           >
             {t[sex]}
           </button>
@@ -95,7 +97,7 @@ export function ActivityPicker({ value, onChange }: { value: Activity; onChange:
           <div className="flex items-center gap-3">
             <div className="flex gap-0.5" aria-hidden>
               {ACTIVITIES.map((_, j) => (
-                <span key={j} className={`h-5 w-1.5 rounded-full ${j <= i ? "bg-accent" : "bg-line"}`} />
+                <span key={j} className={`h-5 w-1.5 rounded-full ${j <= i ? "bg-accent" : "bg-white/10"}`} />
               ))}
             </div>
             <div>
@@ -127,7 +129,11 @@ export function GoalPicker({ value, weightKg, onChange }: { value: GoalPlan; wei
           return (
             <Choice key={g} selected={value.type === g} onClick={() => pick(g)}>
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-surface-2">
+                <div
+                  className={`flex size-10 items-center justify-center rounded-xl transition ${
+                    value.type === g ? "bg-accent text-accent-ink" : "bg-white/5"
+                  }`}
+                >
                   <Icon className="size-5" />
                 </div>
                 <div>
@@ -152,14 +158,14 @@ export function GoalPicker({ value, weightKg, onChange }: { value: GoalPlan; wei
             />
           </Field>
           <Field label={`${t.pace} (${t.kg} ${t.perWeek})`}>
-            <div className="grid grid-cols-4 gap-1 rounded-2xl bg-surface-2 p-1">
+            <div className="grid grid-cols-4 gap-1 rounded-2xl bg-white/[0.04] p-1">
               {PACES.map((p) => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => onChange({ ...value, pace: p })}
                   className={`rounded-xl py-2.5 text-sm font-semibold tabular-nums transition ${
-                    value.pace === p ? "bg-surface shadow-sm" : "text-muted"
+                    value.pace === p ? "seg-on" : "text-muted"
                   }`}
                 >
                   {num(p, 2)}
@@ -182,22 +188,22 @@ export function TargetsSummary({ targets, profile }: { targets: Macros; profile:
   ] as const;
   return (
     <div>
-      <div className="flex items-center gap-4 rounded-3xl bg-ink p-5 text-bg">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-accent text-accent-ink">
+      <div className="relative flex items-center gap-4 overflow-hidden rounded-3xl border border-accent/30 bg-[radial-gradient(120%_120%_at_0%_0%,rgb(198_255_61/0.18),transparent_60%)] p-5">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-accent text-accent-ink shadow-[0_0_30px_-4px_var(--glow)]">
           <Flame className="size-7" />
         </div>
         <div>
-          <div className="text-4xl font-extrabold tabular-nums">
-            {num(targets.calories)} <span className="text-base font-medium opacity-70">{t.kcal}</span>
+          <div className="font-display text-4xl font-bold tabular-nums">
+            {num(targets.calories)} <span className="text-base font-medium text-muted">{t.kcal}</span>
           </div>
-          <div className="text-sm opacity-70">
+          <div className="text-sm text-muted">
             {t.maintenance}: {num(dailyCalorieTarget(profile))} {t.kcal}
           </div>
         </div>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {macros.map((m) => (
-          <div key={m.key} className="rounded-2xl bg-surface-2 p-3 text-center">
+          <div key={m.key} className="rounded-2xl border border-line bg-white/[0.03] p-3 text-center">
             <div className="text-xl font-bold tabular-nums" style={{ color: `var(--${m.key})` }}>
               {num(m.value)}
               <span className="ms-0.5 text-xs font-medium">{t.g}</span>
