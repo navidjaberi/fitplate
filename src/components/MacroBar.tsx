@@ -25,10 +25,10 @@ export function MacroBar({ macro, value, target }: { macro: MacroKey; value: num
           <b className="text-ink">{num(value)}</b> / {num(target)} {t.g}
         </span>
       </div>
-      <div className="h-2.5 overflow-hidden rounded-full bg-surface-2">
+      <div className="h-2 rounded-full bg-surface-2">
         <motion.div
           className="h-full rounded-full"
-          style={{ background: COLOR[macro] }}
+          style={{ background: COLOR[macro], boxShadow: `0 0 14px ${COLOR[macro]}` }}
           initial={{ width: 0 }}
           animate={{ width: `${pct * 100}%` }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}

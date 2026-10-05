@@ -16,7 +16,7 @@ export function Providers({ children }: { children: ReactNode }) {
   const locale = useStore((s) => s.locale);
 
   useEffect(() => {
-    const isFirstVisit = !localStorage.getItem("kalori");
+    const isFirstVisit = !localStorage.getItem("fitplate");
     Promise.resolve(useStore.persist.rehydrate()).then(() => {
       if (isFirstVisit && navigator.language.toLowerCase().startsWith("fa")) {
         useStore.getState().setLocale("fa");

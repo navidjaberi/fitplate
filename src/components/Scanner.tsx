@@ -58,7 +58,7 @@ export function Scanner() {
 
   return (
     <section
-      className={`card relative overflow-hidden transition ${dragging ? "ring-4 ring-accent/40" : ""}`}
+      className={`card relative overflow-hidden transition ${dragging ? "shadow-[0_0_0_2px_var(--accent),0_0_60px_-10px_var(--glow)]" : ""}`}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -92,13 +92,18 @@ export function Scanner() {
             exit={{ opacity: 0 }}
             className="flex flex-col items-center px-6 py-12 text-center sm:py-16"
           >
-            <div className="relative mb-6">
-              <div className="absolute inset-0 animate-ping rounded-full bg-accent/20 [animation-duration:2.4s]" />
-              <div className="relative flex size-20 items-center justify-center rounded-full bg-accent text-accent-ink shadow-lg shadow-accent/30">
+            <div className="relative mb-8 size-40 [perspective:600px]" aria-hidden>
+              <div className="absolute inset-0 [transform-style:preserve-3d]">
+                <span className="gyro text-accent [--dur:7s] [--rx:68deg] [--ry:0deg]" />
+                <span className="gyro text-fat/80 [--dur:9s] [--rx:68deg] [--ry:60deg]" />
+                <span className="gyro text-protein/80 [--dur:11s] [--rx:68deg] [--ry:-60deg]" />
+              </div>
+              <div className="absolute inset-0 m-auto size-20 rounded-full bg-accent/30 blur-2xl" />
+              <div className="absolute inset-0 m-auto flex size-20 items-center justify-center rounded-full bg-accent text-accent-ink shadow-[0_0_50px_-6px_var(--glow),inset_0_2px_0_rgb(255_255_255/0.5)]">
                 <Camera className="size-9" />
               </div>
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-balance sm:text-4xl">
               {dragging ? t.dropHere : t.scanTitle}
             </h1>
             <p className="mt-3 max-w-md text-muted">{t.scanSubtitle}</p>
@@ -113,14 +118,14 @@ export function Scanner() {
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <button
                 onClick={() => cameraRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-semibold text-accent-ink shadow-lg shadow-accent/25 transition hover:-translate-y-0.5 active:translate-y-0"
+                className="btn-primary inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold"
               >
                 <Camera className="size-5" />
                 {t.takePhoto}
               </button>
               <button
                 onClick={() => uploadRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-6 py-3 font-semibold transition hover:border-ink/30"
+                className="btn-ghost inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold"
               >
                 <ImageUp className="size-5" />
                 {t.upload}
@@ -151,7 +156,7 @@ function AnalyzingSteps({ steps }: { steps: string[] }) {
         <li
           key={s}
           className={`rounded-full px-3 py-1 backdrop-blur transition ${
-            idx <= i ? "bg-white/90 text-black" : "bg-white/15 text-white/70"
+            idx <= i ? "bg-accent text-accent-ink" : "bg-white/10 text-white/70"
           }`}
         >
           {s}

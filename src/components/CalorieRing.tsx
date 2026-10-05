@@ -14,7 +14,7 @@ export function CalorieRing({ eaten, goal, size = 200 }: { eaten: number; goal: 
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90 overflow-visible">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--ring-track)" strokeWidth={stroke} />
         <motion.circle
           cx={size / 2}
@@ -25,13 +25,14 @@ export function CalorieRing({ eaten, goal, size = 200 }: { eaten: number; goal: 
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={c}
+          style={{ filter: `drop-shadow(0 0 ${size * 0.04}px ${over ? "var(--protein)" : "var(--accent)"})` }}
           initial={{ strokeDashoffset: c }}
           animate={{ strokeDashoffset: c * (1 - progress) }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-4xl font-extrabold tracking-tight tabular-nums">{num(left)}</span>
+        <span className="font-display text-4xl font-bold tracking-tight tabular-nums">{num(left)}</span>
         <span className="text-sm text-muted">
           {t.kcal} {over ? t.over : t.remaining}
         </span>
