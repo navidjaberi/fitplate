@@ -77,3 +77,50 @@ export function macroTargets(calories: number): Omit<Macros, "calories"> {
     fat: Math.round((calories * 0.3) / 9),
   };
 }
+
+export type GoalType = "lose" | "maintain" | "gain";
+
+export type GoalPlan = {
+  type: GoalType;
+  /** Planned change in kg per week (positive number; direction comes from `type`). */
+  pace: number;
+  targetWeightKg: number;
+};
+
+export type BodyProfile = Parameters<typeof dailyCalorieTarget>[0];
+
+const KCAL_PER_KG = 7700;
+/** Never plan below these, whatever the pace. */
+const MIN_CALORIES = { male: 1500, female: 1200 } as const;
+/** Protein per kg of body weight: higher while cutting to protect muscle. */
+const PROTEIN_PER_KG: Record<GoalType, number> = { lose: 2, maintain: 1.6, gain: 1.8 };
+
+/**
+ * Daily calorie and macro targets for a person and goal.
+ * Calories: maintenance ± the deficit or surplus for the pace (7700 kcal per kg).
+ * Protein from body weight, fat at 25% of calories, carbs fill the rest.
+ */
+export function planTargets(body: BodyProfile, goal: GoalPlan): Macros {
+  const maintenance = dailyCalorieTarget(body);
+  const delta = goal.type === "maintain" ? 0 : (goal.pace * KCAL_PER_KG) / 7;
+  const raw = goal.type === "lose" ? maintenance - delta : maintenance + delta;
+  const calories = Math.round(Math.max(raw, MIN_CALORIES[body.sex]) / 10) * 10;
+
+  const protein = Math.round(body.weightKg * PROTEIN_PER_KG[goal.type]);
+  const fat = Math.round((calories * 0.25) / 9);
+  const carbs = Math.max(0, Math.round((calories - protein * 4 - fat * 9) / 4));
+  return { calories, protein, carbs, fat };
+}
+
+/** Weeks to reach the target weight at the planned pace, or null when there is nothing to reach. */
+export function weeksToGoal(currentKg: number, goal: GoalPlan): number | null {
+  if (goal.type === "maintain" || goal.pace <= 0) return null;
+  const diff = goal.type === "lose" ? currentKg - goal.targetWeightKg : goal.targetWeightKg - currentKg;
+  return diff > 0 ? Math.ceil(diff / goal.pace) : null;
+}
+
+/** Body mass index, rounded to one decimal. */
+export function bmi(weightKg: number, heightCm: number): number {
+  const m = heightCm / 100;
+  return Math.round((weightKg / (m * m)) * 10) / 10;
+}

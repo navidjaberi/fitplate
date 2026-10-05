@@ -4,8 +4,8 @@ import { useStore } from "./store";
 import type { Locale } from "./schema";
 
 const en = {
-  appName: "Kalori",
-  tagline: "Snap your meal. Know your calories.",
+  appName: "FitPlate",
+  tagline: "Your plate, your plan.",
   navToday: "Today",
   navHistory: "History",
   settings: "Settings",
@@ -78,14 +78,63 @@ const en = {
     server_error: "Something went wrong on the server.",
     network: "Couldn't reach the server. Check your connection.",
   } as Record<string, string>,
+  navDashboard: "Dashboard",
+  navScan: "Scan",
+  navProgress: "Progress",
+  navProfile: "Profile",
+  greeting: { morning: "Good morning", afternoon: "Good afternoon", evening: "Good evening" },
+  dashSubtitle: "Here's where you stand today.",
+  scanCta: "Scan a meal",
+  scanCtaHint: "Photo in, calories and macros out",
+  weightTitle: "Weight",
+  logWeight: "Log",
+  kg: "kg",
+  noWeights: "Log your weight to see your trend.",
+  change: "since start",
+  goalTitle: "Your goal",
+  goalTypes: { lose: "Lose weight", maintain: "Maintain", gain: "Build muscle" },
+  goalHints: {
+    lose: "A steady calorie deficit with high protein",
+    maintain: "Eat at maintenance and keep your shape",
+    gain: "A small surplus to support muscle growth",
+  },
+  targetWeight: "Target weight",
+  pace: "Pace",
+  perWeek: "per week",
+  weeksLeft: (n: string) => `About ${n} weeks to go`,
+  goalReached: "You're at your target",
+  bmi: "BMI",
+  dailyTargets: "Daily targets",
+  maintenance: "Maintenance",
+  activityHints: {
+    sedentary: "Desk job, little exercise",
+    light: "Exercise 1 to 3 days a week",
+    moderate: "Exercise 3 to 5 days a week",
+    active: "Hard training 6 to 7 days a week",
+  },
+  obWelcome: "Let's set up your plan",
+  obIntro: "A few questions so your calories and macros fit you, not an average person.",
+  obSteps: ["About you", "Activity", "Goal", "Your plan"],
+  next: "Continue",
+  back: "Back",
+  finish: "Start tracking",
+  obResultIntro: "Based on your answers, here's what to aim for each day:",
+  profileTitle: "Profile and goal",
+  bodySection: "About you",
+  targetsSection: "Daily targets",
+  autoTargets: "Calculated from your profile and goal",
+  customTargetsLabel: "Set by hand",
+  editTargets: "Edit by hand",
+  resetTargets: "Use calculated targets",
+  saved: "Saved",
   footer: "Estimates only, not medical advice.",
 };
 
 export type Dict = typeof en;
 
 const fa: Dict = {
-  appName: "کالری",
-  tagline: "از غذات عکس بگیر، کالریش رو بدون.",
+  appName: "فیت‌پلیت",
+  tagline: "بشقابت، برنامه‌ات.",
   navToday: "امروز",
   navHistory: "تاریخچه",
   settings: "تنظیمات",
@@ -153,16 +202,80 @@ const fa: Dict = {
     server_error: "مشکلی در سرور پیش اومد.",
     network: "به سرور وصل نشد. اینترنتت رو چک کن.",
   },
+  navDashboard: "داشبورد",
+  navScan: "اسکن",
+  navProgress: "پیشرفت",
+  navProfile: "پروفایل",
+  greeting: { morning: "صبح بخیر", afternoon: "ظهر بخیر", evening: "عصر بخیر" },
+  dashSubtitle: "وضعیت امروزت این‌جاست.",
+  scanCta: "اسکن غذا",
+  scanCtaHint: "عکس بده، کالری و درشت‌مغذی بگیر",
+  weightTitle: "وزن",
+  logWeight: "ثبت",
+  kg: "کیلو",
+  noWeights: "وزنت رو ثبت کن تا روندش رو ببینی.",
+  change: "از شروع",
+  goalTitle: "هدف تو",
+  goalTypes: { lose: "کاهش وزن", maintain: "حفظ وزن", gain: "عضله‌سازی" },
+  goalHints: {
+    lose: "کسری کالری ثابت با پروتئین بالا",
+    maintain: "کالری در حد نگهداری برای حفظ فرم",
+    gain: "مازاد کم کالری برای رشد عضله",
+  },
+  targetWeight: "وزن هدف",
+  pace: "سرعت",
+  perWeek: "در هفته",
+  weeksLeft: (n: string) => `حدود ${n} هفته مانده`,
+  goalReached: "به وزن هدفت رسیدی",
+  bmi: "BMI",
+  dailyTargets: "هدف‌های روزانه",
+  maintenance: "کالری نگهداری",
+  activityHints: {
+    sedentary: "کار پشت میز، ورزش کم",
+    light: "ورزش ۱ تا ۳ روز در هفته",
+    moderate: "ورزش ۳ تا ۵ روز در هفته",
+    active: "تمرین سنگین ۶ تا ۷ روز در هفته",
+  },
+  obWelcome: "بیا برنامه‌ات رو بچینیم",
+  obIntro: "چند تا سؤال تا کالری و درشت‌مغذی‌ها برای خودت حساب بشه، نه یه آدم متوسط.",
+  obSteps: ["درباره تو", "فعالیت", "هدف", "برنامه تو"],
+  next: "ادامه",
+  back: "قبلی",
+  finish: "شروع کن",
+  obResultIntro: "بر اساس جواب‌هات، هدف روزانه‌ات این‌هاست:",
+  profileTitle: "پروفایل و هدف",
+  bodySection: "درباره تو",
+  targetsSection: "هدف‌های روزانه",
+  autoTargets: "از روی پروفایل و هدفت حساب شده",
+  customTargetsLabel: "دستی تنظیم شده",
+  editTargets: "تنظیم دستی",
+  resetTargets: "برگرد به مقدار محاسبه‌شده",
+  saved: "ذخیره شد",
   footer: "فقط تخمین است، توصیه پزشکی نیست.",
 };
 
 export const DICTS: Record<Locale, Dict> = { en, fa };
 
+const formatters = new Map<string, Intl.NumberFormat>();
+
+function makeNumberFormatter(tag: string) {
+  return (n: number, digits = 0) => {
+    const key = `${tag}:${digits}`;
+    let f = formatters.get(key);
+    if (!f) formatters.set(key, (f = new Intl.NumberFormat(tag, { maximumFractionDigits: digits })));
+    return f.format(n);
+  };
+}
+
+/** Stable per locale, so components can use `num` in effect dependencies. */
+const NUMBER_FORMATTERS: Record<Locale, (n: number, digits?: number) => string> = {
+  en: makeNumberFormatter("en-US"),
+  fa: makeNumberFormatter("fa-IR"),
+};
+
 export function useI18n() {
   const locale = useStore((s) => s.locale);
   const t = DICTS[locale];
   const tag = locale === "fa" ? "fa-IR" : "en-US";
-  const num = (n: number, digits = 0) =>
-    new Intl.NumberFormat(tag, { maximumFractionDigits: digits }).format(n);
-  return { locale, t, num, tag, dir: locale === "fa" ? ("rtl" as const) : ("ltr" as const) };
+  return { locale, t, num: NUMBER_FORMATTERS[locale], tag, dir: locale === "fa" ? ("rtl" as const) : ("ltr" as const) };
 }

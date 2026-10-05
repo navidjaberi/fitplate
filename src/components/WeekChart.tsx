@@ -14,7 +14,7 @@ export function WeekChart({ days, goal }: { days: Day[]; goal: number }) {
   return (
     <div className="relative h-64">
       <div
-        className="pointer-events-none absolute inset-x-0 z-10 border-t-2 border-dashed border-ink/25"
+        className="pointer-events-none absolute inset-x-0 z-10 border-t border-dashed border-accent/40"
         style={{ bottom: `calc(2rem + (100% - 2rem) * ${goalPct / 100})` }}
       >
         <span className="absolute -top-5 end-0 text-xs font-medium text-muted">
@@ -30,8 +30,15 @@ export function WeekChart({ days, goal }: { days: Day[]; goal: number }) {
             <div key={d.day} className="group flex h-full flex-1 flex-col items-center justify-end">
               <div className="relative flex w-full flex-1 items-end justify-center">
                 <motion.div
-                  className="relative w-full max-w-12 rounded-t-xl rounded-b-md"
-                  style={{ background: d.calories === 0 ? "var(--surface-2)" : over ? "var(--protein)" : "var(--accent)" }}
+                  className="relative w-full max-w-12 rounded-t-xl rounded-b-md transition-[filter] group-hover:brightness-125"
+                  style={
+                    d.calories === 0
+                      ? { background: "rgb(255 255 255 / 0.06)" }
+                      : {
+                          background: `linear-gradient(180deg, var(--${over ? "protein" : "accent"}), color-mix(in srgb, var(--${over ? "protein" : "accent"}) 25%, transparent))`,
+                          boxShadow: `0 0 24px -4px var(--${over ? "protein" : "accent"}), inset 0 1px 0 rgb(255 255 255 / 0.5)`,
+                        }
+                  }
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max(pct, 1.5)}%` }}
                   transition={{ duration: 0.7, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}

@@ -9,8 +9,9 @@ import { CalorieRing } from "./CalorieRing";
 import { MacroBar } from "./MacroBar";
 import { MealCard } from "./MealCard";
 import { useApp } from "./Providers";
+import { TiltCard } from "./ui/TiltCard";
 
-export function TodayPanel() {
+export function TodayPanel({ showMeals = true }: { showMeals?: boolean }) {
   const { t, num, tag } = useI18n();
   const { hydrated } = useApp();
   const meals = useStore((s) => s.meals);
@@ -23,9 +24,9 @@ export function TodayPanel() {
   if (!hydrated) return <div className="card h-[32rem] animate-pulse" />;
 
   return (
-    <section className="card p-5 sm:p-6">
+    <TiltCard max={4} className="p-5 sm:p-6">
       <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="text-xl font-bold">{t.today}</h2>
+        <h2 className="font-display text-xl font-bold">{t.today}</h2>
         <span className="text-sm text-muted">{dateLabel}</span>
       </div>
 
@@ -50,19 +51,21 @@ export function TodayPanel() {
         <MacroBar macro="fat" value={totals.fat} target={goal.fat} />
       </div>
 
-      <div className="mt-6 border-t border-line pt-4">
-        {today.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted">{t.noMeals}</p>
-        ) : (
-          <ul className="-mx-2 space-y-1">
-            <AnimatePresence initial={false}>
-              {today.map((m) => (
-                <MealCard key={m.id} meal={m} />
-              ))}
-            </AnimatePresence>
-          </ul>
-        )}
-      </div>
-    </section>
+      {showMeals && (
+        <div className="mt-6 border-t border-line pt-4">
+          {today.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted">{t.noMeals}</p>
+          ) : (
+            <ul className="-mx-2 space-y-1">
+              <AnimatePresence initial={false}>
+                {today.map((m) => (
+                  <MealCard key={m.id} meal={m} />
+                ))}
+              </AnimatePresence>
+            </ul>
+          )}
+        </div>
+      )}
+    </TiltCard>
   );
 }

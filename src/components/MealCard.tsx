@@ -16,13 +16,13 @@ export function MealCard({ meal }: { meal: Meal }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -16 }}
-      className="group flex items-center gap-3 rounded-2xl p-2 transition hover:bg-surface-2"
+      className="group flex items-center gap-3 rounded-2xl p-2 transition hover:bg-white/[0.04]"
     >
       {meal.thumb ? (
         // eslint-disable-next-line @next/next/no-img-element -- stored data URL thumbnail
-        <img src={meal.thumb} alt="" className="size-14 shrink-0 rounded-xl object-cover" />
+        <img src={meal.thumb} alt="" className="size-14 shrink-0 rounded-xl object-cover ring-1 ring-white/10" />
       ) : (
-        <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-muted">
+        <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-white/5 text-muted">
           <Utensils className="size-5" />
         </div>
       )}
@@ -39,7 +39,7 @@ export function MealCard({ meal }: { meal: Meal }) {
       <button
         onClick={() => removeMeal(meal.id)}
         aria-label={t.delete}
-        className="rounded-full p-1.5 text-muted opacity-0 transition group-hover:opacity-100 hover:text-protein focus:opacity-100"
+        className="rounded-full p-1.5 text-muted opacity-0 transition group-hover:opacity-100 max-md:opacity-100 hover:text-protein focus:opacity-100"
       >
         <Trash2 className="size-4" />
       </button>

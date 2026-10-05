@@ -66,3 +66,51 @@ describe("schemas", () => {
     expect(AnalyzeRequestSchema.safeParse({ image: "data:image/jpeg;base64,AAAA" }).data?.locale).toBe("en");
   });
 });
+
+import { bmi, planTargets, weeksToGoal } from "../nutrition";
+
+const body = { sex: "male" as const, age: 30, heightCm: 180, weightKg: 80, activity: "moderate" as const };
+
+describe("planTargets", () => {
+  it("keeps maintenance calories for a maintain goal", () => {
+    const t = planTargets(body, { type: "maintain", pace: 0, targetWeightKg: 80 });
+    expect(t.calories).toBe(2760);
+    expect(t.protein).toBe(128);
+  });
+  it("subtracts 550 kcal a day for losing 0.5 kg a week", () => {
+    expect(planTargets(body, { type: "lose", pace: 0.5, targetWeightKg: 72 }).calories).toBe(2210);
+  });
+  it("adds a surplus for gaining", () => {
+    expect(planTargets(body, { type: "gain", pace: 0.25, targetWeightKg: 85 }).calories).toBe(3040);
+  });
+  it("never goes below the safety floor", () => {
+    const small = { ...body, sex: "female" as const, weightKg: 50, heightCm: 155, activity: "sedentary" as const };
+    expect(planTargets(small, { type: "lose", pace: 1, targetWeightKg: 45 }).calories).toBe(1200);
+  });
+  it("macro calories add up to roughly the calorie target", () => {
+    const t = planTargets(body, { type: "lose", pace: 0.5, targetWeightKg: 72 });
+    expect(Math.abs(t.protein * 4 + t.carbs * 4 + t.fat * 9 - t.calories)).toBeLessThan(15);
+  });
+});
+
+describe("weeksToGoal and bmi", () => {
+  it("counts weeks at the planned pace", () => {
+    expect(weeksToGoal(80, { type: "lose", pace: 0.5, targetWeightKg: 72 })).toBe(16);
+    expect(weeksToGoal(80, { type: "maintain", pace: 0, targetWeightKg: 80 })).toBeNull();
+    expect(weeksToGoal(70, { type: "lose", pace: 0.5, targetWeightKg: 72 })).toBeNull();
+  });
+  it("computes BMI", () => {
+    expect(bmi(80, 180)).toBe(24.7);
+  });
+});
+
+import { parseLocalizedNumber } from "../format";
+
+describe("parseLocalizedNumber", () => {
+  it("reads Latin, Persian and Arabic digits", () => {
+    expect(parseLocalizedNumber("72.5")).toBe(72.5);
+    expect(parseLocalizedNumber("۷۲٫۵")).toBe(72.5);
+    expect(parseLocalizedNumber("٧٢,٥")).toBe(72.5);
+    expect(parseLocalizedNumber("")).toBeNaN();
+  });
+});

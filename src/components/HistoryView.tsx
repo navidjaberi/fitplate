@@ -9,6 +9,7 @@ import { useI18n } from "@/lib/i18n";
 import { sumMacros } from "@/lib/nutrition";
 import { useStore, type Meal } from "@/lib/store";
 import { MealCard } from "./MealCard";
+import { TiltCard } from "./ui/TiltCard";
 import { useApp } from "./Providers";
 import { WeekChart } from "./WeekChart";
 
@@ -47,13 +48,13 @@ export function HistoryView() {
 
   return (
     <div className="space-y-6">
-      <section className="card p-5 sm:p-6">
-        <h1 className="mb-6 text-2xl font-extrabold tracking-tight">{t.historyTitle}</h1>
+      <TiltCard max={4} className="p-5 sm:p-6">
+        <h1 className="font-display text-gradient mb-8 text-2xl font-bold tracking-tight sm:text-3xl">{t.historyTitle}</h1>
         <WeekChart days={week} goal={goal.calories} />
         <div className="mt-6 grid grid-cols-3 gap-3">
           {stats.map((s) => (
-            <div key={s.label} className="rounded-2xl bg-surface-2 p-3 sm:p-4">
-              <div className="text-xl font-bold tabular-nums sm:text-2xl">
+            <div key={s.label} className="rounded-2xl border border-line bg-white/[0.03] p-3 sm:p-4">
+              <div className="font-display text-xl font-bold tabular-nums sm:text-2xl">
                 {s.value}
                 {s.unit && <span className="ms-1 text-xs font-medium text-muted">{s.unit}</span>}
               </div>
@@ -61,14 +62,14 @@ export function HistoryView() {
             </div>
           ))}
         </div>
-      </section>
+      </TiltCard>
 
       {byDay.length === 0 ? (
         <section className="card flex flex-col items-center gap-4 p-10 text-center">
           <p className="text-muted">{t.noHistory}</p>
           <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-semibold text-accent-ink"
+            href="/scan"
+            className="btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold"
           >
             <Camera className="size-4" /> {t.takePhoto}
           </Link>
