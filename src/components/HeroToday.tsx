@@ -10,7 +10,6 @@ import { AnimatedNumber } from "./ui/AnimatedNumber";
 import { TiltCard } from "./ui/TiltCard";
 import { MacroBar } from "./MacroBar";
 
-/** Today's energy at a glance: the 3D calorie core beside the numbers it shows. */
 export function HeroToday() {
   const { t, num, locale } = useI18n();
   const meals = useStore((s) => s.meals);

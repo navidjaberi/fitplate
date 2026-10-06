@@ -8,11 +8,6 @@ export { AnalysisError, AuthError, RateLimitError } from "./providers/shared";
 
 export type Provider = "claude" | "gemini";
 
-/**
- * Which model provider to use, from the keys that are set.
- * AI_PROVIDER picks one explicitly when both keys exist; Claude wins otherwise.
- * Returns null for demo mode.
- */
 export function activeProvider(): Provider | null {
   if (process.env.DEMO_MODE === "true") return null;
   const hasClaude = Boolean(process.env.ANTHROPIC_API_KEY);
