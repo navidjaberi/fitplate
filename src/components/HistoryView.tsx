@@ -37,7 +37,6 @@ export function HistoryView() {
 
   const logged = week.filter((d) => d.calories > 0);
   const avg = logged.length ? logged.reduce((s, d) => s + d.calories, 0) / logged.length : 0;
-  // A logged day counts as on target when it stays within 5% over the goal.
   const onTarget = logged.filter((d) => d.calories <= goal.calories * 1.05).length;
 
   const stats = [
@@ -49,7 +48,7 @@ export function HistoryView() {
   return (
     <div className="space-y-6">
       <TiltCard max={4} className="p-5 sm:p-6">
-        <h1 className="font-display text-gradient mb-8 text-2xl font-bold tracking-tight sm:text-3xl">{t.historyTitle}</h1>
+        <h1 className="font-display mb-8 text-2xl font-bold tracking-tight sm:text-3xl">{t.historyTitle}</h1>
         <WeekChart days={week} goal={goal.calories} />
         <div className="mt-6 grid grid-cols-3 gap-3">
           {stats.map((s) => (

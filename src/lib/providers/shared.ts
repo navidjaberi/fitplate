@@ -14,9 +14,6 @@ export const userPrompt = (locale: Locale) =>
 
 export type ImageInput = { mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif"; data: string };
 
-/** The model answered but the result is unusable (refusal, bad JSON). */
 export class AnalysisError extends Error {}
-/** The provider is throttling us (free tiers hit this quickly). */
 export class RateLimitError extends Error {}
-/** The configured API key was rejected. */
 export class AuthError extends Error {}

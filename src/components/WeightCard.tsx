@@ -13,7 +13,6 @@ const W = 320;
 const H = 120;
 const PAD = 8;
 
-/** Line chart of the weight log, with the target as a dashed line. */
 function WeightChart({ entries, target }: { entries: WeightEntry[]; target?: number }) {
   const values = entries.map((e) => e.kg);
   const lo = Math.min(...values, target ?? Infinity) - 1;
@@ -33,7 +32,6 @@ function WeightChart({ entries, target }: { entries: WeightEntry[]; target?: num
             <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.25" />
             <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
           </linearGradient>
-          {/* Reveal left to right; pathLength can't be used with a non-scaling stroke. */}
           <clipPath id="weight-reveal">
             <motion.rect
               x={0}
@@ -62,7 +60,6 @@ function WeightChart({ entries, target }: { entries: WeightEntry[]; target?: num
           />
         </g>
       </svg>
-      {/* The latest point lives outside the stretched SVG so it stays round. */}
       {last && (
         <motion.span
           className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent shadow-[0_0_0_4px_rgb(198_255_61/0.2),0_0_14px_var(--accent)]"

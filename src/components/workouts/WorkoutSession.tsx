@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, Plus, Timer, X } from "lucide-react";
@@ -11,7 +11,6 @@ import { completedSets, EXERCISES, volume, type LoggedExercise, type Prescriptio
 import { useApp } from "../Providers";
 import { useDose, useExerciseName } from "./shared";
 
-/** Live logging for the session in progress: sets, reps and load, with a rest timer between sets. */
 export function WorkoutSession() {
   const { t, num } = useI18n();
   const { hydrated } = useApp();
@@ -23,6 +22,7 @@ export function WorkoutSession() {
   const discardWorkout = useStore((s) => s.discardWorkout);
   const [rest, setRest] = useState<{ endsAt: number; total: number } | null>(null);
   const now = useNow();
+  const closeRest = useCallback(() => setRest(null), []);
 
   useEffect(() => {
     if (hydrated && !active) router.replace("/workouts");
@@ -75,7 +75,7 @@ export function WorkoutSession() {
             key={entry.exerciseId}
             index={i}
             entry={entry}
-            prescription={plan?.exercises.find((p) => p.exerciseId === entry.exerciseId)}
+            prescription={entry.plan ?? plan?.exercises.find((p) => p.exerciseId === entry.exerciseId)}
             last={lastSession(history, entry.exerciseId)}
             onSetDone={(restSec) => setRest({ endsAt: Date.now() + restSec * 1000, total: restSec })}
           />
@@ -89,13 +89,17 @@ export function WorkoutSession() {
         >
           {t.wkDiscard}
         </button>
-        <button onClick={finish} className="btn-primary inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold">
+        <button
+          onClick={finish}
+          disabled={done === 0}
+          className="btn-primary inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold disabled:opacity-40"
+        >
           <Check className="size-5" />
           {t.wkFinish}
         </button>
       </div>
 
-      <AnimatePresence>{rest && <RestTimer {...rest} now={now} onClose={() => setRest(null)} />}</AnimatePresence>
+      <AnimatePresence>{rest && <RestTimer {...rest} now={now} onClose={closeRest} />}</AnimatePresence>
     </div>
   );
 }
@@ -121,7 +125,6 @@ function ExerciseCard({
   const info = EXERCISES[entry.exerciseId];
   const timed = info?.unit === "seconds";
   const allDone = entry.sets.every((s) => s.done);
-  // Editing a set also updates the sets after it that still hold the old value, so a load is typed once.
   const carry = (j: number, key: "kg" | "reps", n: number) => {
     const old = entry.sets[j][key];
     entry.sets.forEach((s, k) => {
@@ -202,17 +205,16 @@ function ExerciseCard({
   );
 }
 
-/** A numeric input that accepts Persian digits and only commits valid numbers. */
 function NumberCell({ value, onChange, label }: { value: number; onChange: (n: number) => void; label: string }) {
-  const { num } = useI18n();
-  // Shown in the reader's digits; parseLocalizedNumber reads Persian and Latin alike.
+  const { num, locale } = useI18n();
   const show = (n: number) => num(n, 2).replace(/[,٬]/g, "");
   const [text, setText] = useState(() => show(value));
   const [synced, setSynced] = useState(value);
-  // Pick up changes made elsewhere (for example a prefilled suggestion) without fighting the user's typing.
-  if (value !== synced) {
+  const [shownIn, setShownIn] = useState(locale);
+  if (value !== synced || locale !== shownIn) {
     setSynced(value);
-    if (parseLocalizedNumber(text) !== value) setText(show(value));
+    setShownIn(locale);
+    if (locale !== shownIn || parseLocalizedNumber(text) !== value) setText(show(value));
   }
   return (
     <input
@@ -238,13 +240,18 @@ function RestTimer({ endsAt, total, now, onClose }: { endsAt: number; total: num
   const left = Math.max(0, Math.ceil((endsAt - now) / 1000));
   const r = 22;
   const c = 2 * Math.PI * r;
+  const over = left === 0;
+  const closeRef = useRef(onClose);
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
 
   useEffect(() => {
-    if (left > 0) return;
+    if (!over) return;
     navigator.vibrate?.([120, 80, 120]);
-    const id = setTimeout(onClose, 1200);
+    const id = setTimeout(() => closeRef.current(), 1200);
     return () => clearTimeout(id);
-  }, [left, onClose]);
+  }, [over, endsAt]);
 
   return (
     <motion.div

@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
 import { dayKey } from "./date";
 import { macroTargets, planTargets, sumMacros, type Activity, type GoalPlan, type Macros, type Sex } from "./nutrition";
 import type { FoodItem, Locale } from "./schema";
@@ -28,27 +28,20 @@ type State = {
   locale: Locale;
   profile: Profile | null;
   plan: GoalPlan | null;
-  /** Daily targets. Derived from profile + plan unless the user edited them by hand. */
   goal: Macros;
   customTargets: boolean;
   meals: Meal[];
   weights: WeightEntry[];
   program: Program | null;
-  /** Finished sessions, newest first. */
   workouts: WorkoutLog[];
-  /** The session in progress, kept here so a reload doesn't lose it. */
   activeWorkout: WorkoutLog | null;
   setLocale: (locale: Locale) => void;
-  /** Save profile and goal from onboarding or the profile page, and recompute targets. */
   setPlan: (profile: Profile, plan: GoalPlan) => void;
-  /** Override the computed targets by hand. Pass null to go back to computed ones. */
   setCustomTargets: (targets: Macros | null) => void;
   logWeight: (kg: number) => void;
   addMeal: (meal: Omit<Meal, "id" | "day" | "createdAt" | "totals">) => void;
   removeMeal: (id: string) => void;
-  /** Build (or rebuild) the weekly program from the setup and the current goal. */
   createProgram: (setup: WorkoutSetup) => void;
-  /** Start a session for one of the program's days. */
   startWorkout: (dayIndex: number) => void;
   updateSet: (exercise: number, set: number, patch: Partial<LoggedSet>) => void;
   addSet: (exercise: number) => void;
@@ -61,10 +54,30 @@ type State = {
 const DEFAULT_CALORIES = 2000;
 const DEFAULT_GOAL: Macros = { calories: DEFAULT_CALORIES, ...macroTargets(DEFAULT_CALORIES) };
 
-/** Keep one weight entry per day, sorted oldest first. */
 function upsertWeight(weights: WeightEntry[], entry: WeightEntry) {
   return [...weights.filter((w) => w.day !== entry.day), entry].sort((a, b) => a.day.localeCompare(b.day));
 }
+
+const THUMBS_KEPT = 60;
+
+function trimThumbs(value: string, keep: number) {
+  const data = JSON.parse(value) as { state: { meals?: Meal[] } };
+  data.state.meals = data.state.meals?.map((m, i) => (i < keep ? m : { ...m, thumb: undefined }));
+  return JSON.stringify(data);
+}
+
+const safeStorage: StateStorage = {
+  getItem: (name) => localStorage.getItem(name),
+  removeItem: (name) => localStorage.removeItem(name),
+  setItem: (name, value) => {
+    for (const keep of [Infinity, THUMBS_KEPT, 10, 0]) {
+      try {
+        localStorage.setItem(name, keep === Infinity ? value : trimThumbs(value, keep));
+        return;
+      } catch {}
+    }
+  },
+};
 
 export const useStore = create<State>()(
   persist(
@@ -96,7 +109,6 @@ export const useStore = create<State>()(
       logWeight: (kg) =>
         set((s) => {
           const profile = s.profile ? { ...s.profile, weightKg: kg } : null;
-          // Targets follow body weight, so recompute them unless they were set by hand.
           const goal = profile && s.plan && !s.customTargets ? planTargets(profile, s.plan) : s.goal;
           return { weights: upsertWeight(s.weights, { day: dayKey(), kg }), profile, goal };
         }),
@@ -144,7 +156,6 @@ export const useStore = create<State>()(
       finishWorkout: () =>
         set((s) => {
           if (!s.activeWorkout) return {};
-          // Keep only exercises with at least one completed set.
           const entries = s.activeWorkout.entries
             .map((e) => ({ ...e, sets: e.sets.filter((x) => x.done) }))
             .filter((e) => e.sets.length);
@@ -159,14 +170,12 @@ export const useStore = create<State>()(
     {
       name: "fitplate",
       version: 3,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       skipHydration: true,
       migrate: (persisted, version) => {
         const state = persisted as Partial<State>;
-        // v1 had a hand-set calorie goal and no plan or weight log.
         let next = state;
         if (version < 2) next = { ...next, plan: null, customTargets: true, weights: [] };
-        // v3 adds workout programs and logs.
         if (version < 3) next = { ...next, program: null, workouts: [], activeWorkout: null };
         return next as State;
       },
@@ -178,7 +187,6 @@ export function mealsForDay(meals: Meal[], day: string) {
   return meals.filter((m) => m.day === day);
 }
 
-/** Suggest a meal slot from the time of day. */
 export function guessMealType(date = new Date()): MealType {
   const h = date.getHours();
   if (h < 11) return "breakfast";

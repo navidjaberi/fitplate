@@ -1,4 +1,3 @@
-/** Resize a photo in the browser so uploads stay small and fast. Returns a JPEG data URL. */
 export async function compressImage(file: File, maxSide = 1280, quality = 0.85): Promise<string> {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
@@ -15,7 +14,6 @@ export async function compressImage(file: File, maxSide = 1280, quality = 0.85):
   return canvas.toDataURL("image/jpeg", quality);
 }
 
-/** A small thumbnail for the meal log, so localStorage stays well under its quota. */
 export async function thumbnail(dataUrl: string, size = 160): Promise<string> {
   const img = new Image();
   img.src = dataUrl;

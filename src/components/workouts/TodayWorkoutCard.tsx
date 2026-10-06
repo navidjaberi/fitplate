@@ -10,7 +10,6 @@ import { estimateKcal, estimateMinutes, nextProgramDay, programDayFor, volume } 
 import { TiltCard } from "../ui/TiltCard";
 import { useExerciseName, useWeekdayNames, useWeekOrder } from "./shared";
 
-/** Today's session at a glance, with the week's training days underneath. */
 export function TodayWorkoutCard() {
   const { t, num } = useI18n();
   const router = useRouter();
@@ -135,7 +134,6 @@ function Title() {
   );
 }
 
-/** The current week: training days outlined, finished ones filled, today ringed. */
 export function WeekStrip() {
   const program = useStore((s) => s.program);
   const workouts = useStore((s) => s.workouts);

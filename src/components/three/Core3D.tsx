@@ -4,10 +4,8 @@ import dynamic from "next/dynamic";
 import { Component, useSyncExternalStore, type ReactNode } from "react";
 import type { CoreProps } from "./EnergyCore";
 
-// three.js is large and browser-only: load it after the page is interactive.
 const EnergyCore = dynamic(() => import("./EnergyCore"), { ssr: false, loading: () => <Glow /> });
 
-/** Soft placeholder that matches the scene's colours while it loads or if WebGL is unavailable. */
 function Glow() {
   return (
     <div className="flex size-full items-center justify-center">

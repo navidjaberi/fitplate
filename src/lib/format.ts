@@ -1,4 +1,3 @@
-/** Turn Persian or Arabic-Indic digits (and the Persian decimal mark) into a number. */
 export function parseLocalizedNumber(input: string): number {
   const latin = input
     .trim()

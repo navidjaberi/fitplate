@@ -8,7 +8,7 @@ type Day = { day: string; calories: number };
 
 export function WeekChart({ days, goal }: { days: Day[]; goal: number }) {
   const { t, num, tag } = useI18n();
-  const max = Math.max(goal * 1.25, ...days.map((d) => d.calories));
+  const max = Math.max(goal * 1.25, ...days.map((d) => d.calories), 1);
   const goalPct = (goal / max) * 100;
 
   return (

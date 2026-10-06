@@ -4,16 +4,11 @@ import { useRef, type ComponentProps, type PointerEvent } from "react";
 import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
 
 type Props = ComponentProps<typeof motion.div> & {
-  /** Maximum tilt in degrees. */
   max?: number;
 };
 
 const SPRING = { stiffness: 220, damping: 22, mass: 0.6 };
 
-/**
- * A glass card that leans toward the cursor in 3D and lights its border where the pointer is.
- * Touch and reduced-motion users get the static card.
- */
 export function TiltCard({ max = 6, className = "", children, style, ...rest }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();

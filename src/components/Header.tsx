@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { ChartNoAxesColumn, Dumbbell, House, Languages, ScanLine, Sparkles, UserRound, type LucideIcon } from "lucide-react";
+import { ChartNoAxesColumn, Dumbbell, House, Languages, ScanLine, UserRound, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 import { useApp } from "./Providers";
@@ -24,7 +24,6 @@ export function Header() {
     { href: "/history", label: t.navProgress, icon: ChartNoAxesColumn },
     { href: "/profile", label: t.navProfile, icon: UserRound },
   ];
-  // Onboarding is a focused flow: no navigation to wander off into.
   const showNav = pathname !== "/onboarding";
 
   return (
@@ -41,7 +40,7 @@ export function Header() {
               title={t.demoHint}
               className="hidden items-center gap-1 rounded-full bg-carbs/15 px-2.5 py-1 text-xs font-semibold text-carbs sm:inline-flex"
             >
-              <Sparkles className="size-3.5" />
+              <span className="size-1.5 rounded-full bg-current" />
               {t.demoBadge}
             </span>
           )}
@@ -118,7 +117,6 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-/** Sub-pages (like a running workout) keep their section highlighted. */
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }

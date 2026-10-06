@@ -2,8 +2,7 @@ import { activeProvider, AnalysisError, analyzeImage, AuthError, RateLimitError 
 import { mockAnalysis } from "@/lib/mock";
 import { AnalyzeRequestSchema, type AnalyzeResponse } from "@/lib/schema";
 
-// About 5 MB of base64; the client resizes photos well below this.
-const MAX_IMAGE_CHARS = 7_000_000;
+const MAX_IMAGE_CHARS = 4_000_000;
 
 export const maxDuration = 60;
 
@@ -21,7 +20,6 @@ export async function POST(request: Request) {
 
   const provider = activeProvider();
   if (!provider) {
-    // Simulate model latency so the demo feels like the real thing.
     await new Promise((r) => setTimeout(r, 1400));
     return json({ ok: true, mode: "demo", analysis: mockAnalysis(image, locale) });
   }

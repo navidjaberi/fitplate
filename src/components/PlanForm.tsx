@@ -117,7 +117,6 @@ export function GoalPicker({ value, weightKg, onChange }: { value: GoalPlan; wei
     onChange({
       type,
       pace: type === "maintain" ? 0 : value.pace || 0.5,
-      // Suggest a sensible target in the right direction when switching goals.
       targetWeightKg: type === "lose" ? Math.round(weightKg * 0.92) : type === "gain" ? Math.round(weightKg * 1.05) : weightKg,
     });
 
@@ -216,7 +215,6 @@ export function TargetsSummary({ targets, profile }: { targets: Macros; profile:
   );
 }
 
-/** Basic sanity bounds so a half-typed number never produces a nonsense plan. */
 export function isProfileValid(p: Profile) {
   return p.age >= 14 && p.age <= 99 && p.heightCm >= 120 && p.heightCm <= 230 && p.weightKg >= 35 && p.weightKg <= 250;
 }

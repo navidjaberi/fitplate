@@ -39,6 +39,11 @@ describe("buildProgram", () => {
     expect(p.days.map((d) => d.weekday)).toEqual([1, 3, 5]);
     expect(p.days.map((d) => d.focus)).toEqual(["push", "pull", "legs"]);
   });
+  it("starts the week after the longest rest gap", () => {
+    const p = buildProgram({ ...setup, weekdays: [1, 3, 6] }, "gain");
+    expect(p.days.map((d) => d.weekday)).toEqual([6, 1, 3]);
+    expect(p.days[0].focus).toBe("push");
+  });
   it("only picks exercises that exist and match the equipment", () => {
     const p = buildProgram(
       {
@@ -82,8 +87,8 @@ describe("prescribe", () => {
 describe("schedule helpers", () => {
   const p = buildProgram({ ...setup }, "maintain");
   it("finds today's day by weekday", () => {
-    expect(programDayFor(p, new Date(2026, 9, 5))?.focus).toBe("push"); // a Monday
-    expect(programDayFor(p, new Date(2026, 9, 6))).toBeUndefined(); // Tuesday is rest
+    expect(programDayFor(p, new Date(2026, 9, 5))?.focus).toBe("push");
+    expect(programDayFor(p, new Date(2026, 9, 6))).toBeUndefined();
   });
   it("finds the next training day", () => {
     expect(nextProgramDay(p, new Date(2026, 9, 6))).toMatchObject({

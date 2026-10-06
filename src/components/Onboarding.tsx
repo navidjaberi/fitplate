@@ -41,7 +41,7 @@ export function Onboarding() {
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-6 text-center">
-        <h1 className="font-display text-gradient text-3xl font-bold tracking-tight sm:text-4xl">{t.obWelcome}</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">{t.obWelcome}</h1>
         <p className="mt-2 text-muted">{t.obIntro}</p>
       </div>
 
@@ -65,7 +65,6 @@ export function Onboarding() {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={step}
-            // Steps turn like pages of a card in 3D.
             initial={{ opacity: 0, rotateY: dir === "rtl" ? 35 : -35, x: dir === "rtl" ? -30 : 30 }}
             animate={{ opacity: 1, rotateY: 0, x: 0 }}
             style={{ transformPerspective: 1200 }}
