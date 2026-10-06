@@ -7,9 +7,7 @@ import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import * as THREE from "three";
 
 export type CoreProps = {
-  /** Share of today's calorie goal eaten, 0..1+ */
   progress: number;
-  /** Share of each macro target reached, 0..1+ */
   macros: { protein: number; carbs: number; fat: number };
 };
 
@@ -17,7 +15,6 @@ const COLORS = { accent: "#c6ff3d", over: "#ff5c7a", protein: "#ff5c7a", carbs: 
 const RING_RADIUS = 1.55;
 const TUBE = 0.11;
 
-/** The calorie ring: a glowing arc that grows to today's progress over a dark track. */
 function ProgressRing({ progress }: { progress: number }) {
   const mesh = useRef<THREE.Mesh>(null);
   const shown = useRef(0);
@@ -36,7 +33,6 @@ function ProgressRing({ progress }: { progress: number }) {
   });
 
   return (
-    // Start at 12 o'clock and fill clockwise.
     <group rotation={[0, 0, Math.PI / 2]} scale={[-1, 1, 1]}>
       <mesh>
         <torusGeometry args={[RING_RADIUS, TUBE * 0.55, 24, 160]} />
@@ -57,7 +53,6 @@ function ProgressRing({ progress }: { progress: number }) {
   );
 }
 
-/** One macro as a glossy orb on a tilted orbit; its size grows with how much of the target is reached. */
 function MacroOrb({ color, fill, radius, tilt, speed, phase }: { color: string; fill: number; radius: number; tilt: number; speed: number; phase: number }) {
   const ref = useRef<THREE.Mesh>(null);
   const size = 0.1 + Math.min(fill, 1.2) * 0.13;
@@ -73,7 +68,6 @@ function MacroOrb({ color, fill, radius, tilt, speed, phase }: { color: string; 
   );
 }
 
-/** Tilts the whole scene a little toward the pointer for a sense of depth. */
 function Parallax({ children }: { children: React.ReactNode }) {
   const group = useRef<THREE.Group>(null);
   const { pointer } = useThree();
@@ -101,7 +95,6 @@ function Scene({ progress, macros }: CoreProps) {
       <ambientLight intensity={0.25} />
       <pointLight position={[3, 3, 4]} intensity={30} color={COLORS.accent} />
       <pointLight position={[-4, -2, 3]} intensity={25} color={COLORS.fat} />
-      {/* A generated studio environment, so reflections work without downloading an HDR. */}
       <Environment resolution={128}>
         <Lightformer form="ring" intensity={2} position={[0, 4, -6]} scale={6} />
         <Lightformer intensity={1.2} position={[-6, 0, 0]} rotation-y={Math.PI / 2} scale={[8, 2, 1]} />
@@ -137,7 +130,6 @@ function Scene({ progress, macros }: CoreProps) {
   );
 }
 
-/** Renders only while on screen, so the dashboard costs nothing when scrolled away. */
 export default function EnergyCore(props: CoreProps) {
   const wrapper = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
@@ -150,7 +142,6 @@ export default function EnergyCore(props: CoreProps) {
   }, []);
 
   return (
-    // Post-processing makes the canvas opaque at the edges; a radial mask melts it into the card.
     <div ref={wrapper} className="size-full [mask-image:radial-gradient(closest-side,#000_78%,transparent)]">
       <Canvas
         dpr={[1, 2]}

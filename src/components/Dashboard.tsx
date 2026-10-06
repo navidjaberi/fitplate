@@ -35,7 +35,6 @@ export function Dashboard() {
   const profile = useStore((s) => s.profile);
   const meals = useStore((s) => s.meals);
 
-  // First visit: set up a profile before showing numbers that depend on it.
   useEffect(() => {
     if (hydrated && !profile) router.replace("/onboarding");
   }, [hydrated, profile, router]);
@@ -57,9 +56,8 @@ export function Dashboard() {
       <motion.header variants={item} className="mb-7">
         <p className="text-sm text-muted">{now.toLocaleDateString(tag, { weekday: "long", month: "long", day: "numeric" })}</p>
         <h1 className="font-display mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-          <span className="text-gradient">{t.greeting[greetingKey(now.getHours())]}</span>
+          {t.greeting[greetingKey(now.getHours())]}
         </h1>
-        <p className="mt-2 text-muted">{t.dashSubtitle}</p>
       </motion.header>
 
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-3">

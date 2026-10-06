@@ -3,7 +3,6 @@ import type { GoalType } from "./nutrition";
 export type Equipment = "gym" | "dumbbells" | "bodyweight";
 export type Experience = "beginner" | "intermediate" | "advanced";
 
-/** What the user tells us before we build a program. Weekdays use Date#getDay (0 = Sunday). */
 export type WorkoutSetup = {
   weekdays: number[];
   equipment: Equipment;
@@ -29,9 +28,7 @@ type Pattern =
 export type Exercise = {
   id: string;
   name: { en: string; fa: string };
-  /** Timed holds are logged in seconds instead of reps. */
   unit: "reps" | "seconds";
-  /** Bodyweight moves don't ask for a load. */
   loaded: boolean;
 };
 
@@ -82,7 +79,6 @@ export const EXERCISES: Record<string, Exercise> = Object.fromEntries(
   ].map((e) => [e.id, e]),
 );
 
-/** For each movement pattern, the exercise to use with each kind of equipment. */
 const PICK: Record<Pattern, Record<Equipment, string>> = {
   squat: {
     gym: "back-squat",
@@ -157,7 +153,6 @@ const TEMPLATES: Record<Focus, Pattern[]> = {
   legs: ["squat", "lunge", "legCurl", "calves", "core"],
 };
 
-/** The weekly split for a number of training days. Beginners get full-body days at three per week. */
 export function splitFor(days: number, experience: Experience): Focus[] {
   switch (Math.max(2, Math.min(6, days))) {
     case 2:
@@ -191,7 +186,6 @@ export type Program = {
   days: ProgramDay[];
 };
 
-/** Sets, rep range and rest for one exercise, from the goal and training age. */
 export function prescribe(pattern: Pattern, goal: GoalType, experience: Experience, equipment: Equipment): Prescription {
   const exerciseId = PICK[pattern][equipment];
   const compound = COMPOUND.has(pattern);
@@ -200,7 +194,6 @@ export function prescribe(pattern: Pattern, goal: GoalType, experience: Experien
   const sets = experience === "advanced" && compound ? 4 : experience === "beginner" && !compound ? 2 : 3;
   let reps: [number, number];
   if (timed) reps = experience === "beginner" ? [20, 40] : [30, 60];
-  // Without load, progress comes from more reps.
   else if (!EXERCISES[exerciseId].loaded) reps = [8, 15];
   else if (!compound) reps = [10, 15];
   else reps = goal === "gain" ? [6, 10] : [8, 12];
@@ -208,11 +201,25 @@ export function prescribe(pattern: Pattern, goal: GoalType, experience: Experien
   return { exerciseId, sets, reps, restSec };
 }
 
-/** Three spread-out days, avoiding the weekend: Mon/Wed/Fri, or Sat/Mon/Wed where Friday is the day off. */
 export const DEFAULT_WEEKDAYS = { en: [1, 3, 5], fa: [6, 1, 3] };
 
+export function trainingOrder(days: number[]) {
+  const sorted = [...new Set(days)].sort((a, b) => a - b);
+  let start = 0;
+  let widest = -1;
+  sorted.forEach((d, i) => {
+    const prev = sorted[(i + sorted.length - 1) % sorted.length];
+    const gap = (d - prev + 7) % 7 || 7;
+    if (gap > widest) {
+      widest = gap;
+      start = i;
+    }
+  });
+  return [...sorted.slice(start), ...sorted.slice(0, start)];
+}
+
 export function buildProgram(setup: WorkoutSetup, goal: GoalType, now = new Date()): Program {
-  const weekdays = [...new Set(setup.weekdays)].sort((a, b) => a - b);
+  const weekdays = trainingOrder(setup.weekdays);
   const split = splitFor(weekdays.length, setup.experience);
   return {
     createdAt: now.toISOString(),
@@ -230,7 +237,6 @@ export function programDayFor(program: Program, date = new Date()): ProgramDay |
   return program.days.find((d) => d.weekday === date.getDay());
 }
 
-/** The next training day after today (or today itself when `includeToday`). */
 export function nextProgramDay(program: Program, date = new Date(), includeToday = false) {
   for (let offset = includeToday ? 0 : 1; offset <= 7; offset++) {
     const d = new Date(date);
@@ -242,7 +248,7 @@ export function nextProgramDay(program: Program, date = new Date(), includeToday
 }
 
 export type LoggedSet = { kg: number; reps: number; done: boolean };
-export type LoggedExercise = { exerciseId: string; sets: LoggedSet[] };
+export type LoggedExercise = { exerciseId: string; sets: LoggedSet[]; plan?: Prescription };
 export type WorkoutLog = {
   id: string;
   day: string;
@@ -252,7 +258,6 @@ export type WorkoutLog = {
   entries: LoggedExercise[];
 };
 
-/** Weight moved: kg × reps over completed sets. */
 export function volume(log: Pick<WorkoutLog, "entries">) {
   let total = 0;
   for (const e of log.entries) for (const s of e.sets) if (s.done) total += s.kg * s.reps;
@@ -263,21 +268,15 @@ export function completedSets(log: Pick<WorkoutLog, "entries">) {
   return log.entries.reduce((n, e) => n + e.sets.filter((s) => s.done).length, 0);
 }
 
-/** Rough session length: about 40 s of work per set plus the prescribed rest. */
 export function estimateMinutes(day: ProgramDay) {
   const seconds = day.exercises.reduce((sum, p) => sum + p.sets * (40 + p.restSec), 0);
   return Math.round(seconds / 60 / 5) * 5;
 }
 
-/** Energy for moderate-to-vigorous resistance training (MET ≈ 5). */
 export function estimateKcal(minutes: number, bodyKg: number) {
   return Math.round(5 * bodyKg * (minutes / 60));
 }
 
-/**
- * Load to try next time: add 2.5 kg once every set of the last session reached the top of
- * the rep range, otherwise repeat the last load. Undefined when the exercise was never logged.
- */
 export function suggestLoad(exerciseId: string, prescription: Prescription, history: WorkoutLog[]) {
   for (const log of history) {
     const entry = log.entries.find((e) => e.exerciseId === exerciseId);
@@ -290,7 +289,6 @@ export function suggestLoad(exerciseId: string, prescription: Prescription, hist
   return undefined;
 }
 
-/** A fresh log for a program day, prefilled with suggested loads and the low end of the rep range. */
 export function startLog(day: ProgramDay, history: WorkoutLog[], dayKey: string, now = new Date()): WorkoutLog {
   return {
     id: crypto.randomUUID(),
@@ -301,6 +299,7 @@ export function startLog(day: ProgramDay, history: WorkoutLog[], dayKey: string,
       const kg = suggestLoad(p.exerciseId, p, history) ?? 0;
       return {
         exerciseId: p.exerciseId,
+        plan: p,
         sets: Array.from({ length: p.sets }, () => ({
           kg,
           reps: p.reps[0],

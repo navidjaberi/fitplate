@@ -15,6 +15,5 @@ export default function ProfilePage() {
     if (hydrated && !profile) router.replace("/onboarding");
   }, [hydrated, profile, router]);
 
-  // The form starts from saved values, so it mounts only after they are loaded.
   return hydrated && profile ? <ProfileView /> : <div className="card mx-auto h-96 max-w-3xl animate-pulse" />;
 }

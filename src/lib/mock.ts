@@ -105,7 +105,6 @@ const MEALS: Meal[] = [
   },
 ];
 
-/** Picks a sample meal deterministically from the image bytes so the same photo gives the same demo result. */
 export function mockAnalysis(image: string, locale: Locale): Analysis {
   let hash = 0;
   for (let i = 0; i < image.length; i += 97) hash = (hash * 31 + image.charCodeAt(i)) >>> 0;

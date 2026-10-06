@@ -45,7 +45,7 @@ export function WorkoutsView() {
   if (!program || editing) {
     return (
       <div className="mx-auto max-w-3xl">
-        <h1 className="font-display text-gradient text-3xl font-bold tracking-tight sm:text-4xl">{t.wkSetupTitle}</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">{t.wkSetupTitle}</h1>
         <p className="mt-2 mb-6 text-muted">{t.wkSetupIntro}</p>
         <section className="card p-5 sm:p-7">
           <WorkoutSetupForm onDone={() => setEditing(false)} />
@@ -58,7 +58,7 @@ export function WorkoutsView() {
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
       <motion.header variants={item} className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-gradient text-3xl font-bold tracking-tight sm:text-4xl">{t.wkTitle}</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">{t.wkTitle}</h1>
           <p className="mt-2 text-muted">
             {t.wkBuiltFor}: {t.goalTypes[program.goal]} · {t.equipment[program.setup.equipment]} ·{" "}
             {t.experience[program.setup.experience]}

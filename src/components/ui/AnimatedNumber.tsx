@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { animate, useInView, useReducedMotion } from "motion/react";
 import { useI18n } from "@/lib/i18n";
 
-/** Counts up to `value` when it scrolls into view, then eases between later values. */
 export function AnimatedNumber({ value, digits = 0, className }: { value: number; digits?: number; className?: string }) {
   const { num } = useI18n();
   const ref = useRef<HTMLSpanElement>(null);
