@@ -37,7 +37,6 @@ describe("macroSplit", () => {
 
 describe("goals", () => {
   it("matches Mifflin-St Jeor for a reference adult", () => {
-    // 10*80 + 6.25*180 - 5*30 + 5 = 1780; ×1.55 = 2759 → 2760
     expect(dailyCalorieTarget({ sex: "male", age: 30, heightCm: 180, weightKg: 80, activity: "moderate" })).toBe(2760);
   });
   it("derives gram targets from a calorie goal", () => {

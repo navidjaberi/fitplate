@@ -1,4 +1,3 @@
-/** Local calendar day as YYYY-MM-DD, used as the key for daily logs. */
 export function dayKey(date: Date = new Date()): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -6,7 +5,6 @@ export function dayKey(date: Date = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
-/** The last `n` day keys, oldest first, ending today. */
 export function lastDays(n: number, from: Date = new Date()): string[] {
   return Array.from({ length: n }, (_, i) => {
     const d = new Date(from);

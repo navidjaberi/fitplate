@@ -39,7 +39,9 @@ export function ProfileView() {
   const [custom, setCustom] = useState<Macros>(store.goal);
   const [saved, setSaved] = useState(false);
 
-  const valid = isProfileValid(profile) && isPlanValid(plan, profile.weightKg);
+  const customValid =
+    custom.calories >= 800 && custom.calories <= 6000 && [custom.protein, custom.carbs, custom.fat].every((n) => n >= 0 && n <= 600);
+  const valid = isProfileValid(profile) && isPlanValid(plan, profile.weightKg) && (!editing || customValid);
   const computed = planTargets(profile, plan);
 
   const save = () => {
@@ -53,7 +55,7 @@ export function ProfileView() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="font-display text-gradient text-3xl font-bold tracking-tight sm:text-4xl">{t.profileTitle}</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">{t.profileTitle}</h1>
 
       <Section title={t.bodySection}>
         <BodyFields value={profile} onChange={setProfile} />

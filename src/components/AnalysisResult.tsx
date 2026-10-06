@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, Info, Minus, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
+import { Check, Info, Minus, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { thumbnail } from "@/lib/image";
 import { macroSplit, scaleItem, sumMacros } from "@/lib/nutrition";
@@ -28,6 +28,7 @@ export function AnalysisResult({ image, analysis, mode, onReset }: Props) {
   const [removed, setRemoved] = useState<Set<number>>(new Set());
   const [mealType, setMealType] = useState<MealType>(guessMealType);
   const [saved, setSaved] = useState(false);
+  const saving = useRef(false);
 
   const items = useMemo(
     () =>
@@ -43,6 +44,8 @@ export function AnalysisResult({ image, analysis, mode, onReset }: Props) {
     setSteps((s) => s.map((v, idx) => (idx === i ? Math.max(0, Math.min(STEPS.length - 1, v + delta)) : v)));
 
   const save = async () => {
+    if (saving.current) return;
+    saving.current = true;
     addMeal({
       type: mealType,
       title: analysis.dishName,
@@ -73,7 +76,7 @@ export function AnalysisResult({ image, analysis, mode, onReset }: Props) {
               )}
               {mode === "demo" && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 backdrop-blur">
-                  <Sparkles className="size-3" /> {t.demoBadge}
+                  <span className="size-1.5 rounded-full bg-current" /> {t.demoBadge}
                 </span>
               )}
             </div>

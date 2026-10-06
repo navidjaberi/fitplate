@@ -1,4 +1,3 @@
-/** Fixed ambient background: drifting colour fields (soft radial gradients; no filter blur, which repaints badly while animating), a faint grid, and grain. Pure CSS, no JS. */
 export function Backdrop() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">

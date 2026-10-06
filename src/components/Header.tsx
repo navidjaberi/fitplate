@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { ChartNoAxesColumn, House, Languages, ScanLine, Sparkles, UserRound, type LucideIcon } from "lucide-react";
+import { ChartNoAxesColumn, Dumbbell, House, Languages, ScanLine, UserRound, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 import { useApp } from "./Providers";
@@ -20,10 +20,10 @@ export function Header() {
   const links: NavItem[] = [
     { href: "/", label: t.navDashboard, icon: House },
     { href: "/scan", label: t.navScan, icon: ScanLine },
+    { href: "/workouts", label: t.navWorkouts, icon: Dumbbell },
     { href: "/history", label: t.navProgress, icon: ChartNoAxesColumn },
     { href: "/profile", label: t.navProfile, icon: UserRound },
   ];
-  // Onboarding is a focused flow: no navigation to wander off into.
   const showNav = pathname !== "/onboarding";
 
   return (
@@ -40,7 +40,7 @@ export function Header() {
               title={t.demoHint}
               className="hidden items-center gap-1 rounded-full bg-carbs/15 px-2.5 py-1 text-xs font-semibold text-carbs sm:inline-flex"
             >
-              <Sparkles className="size-3.5" />
+              <span className="size-1.5 rounded-full bg-current" />
               {t.demoBadge}
             </span>
           )}
@@ -48,7 +48,7 @@ export function Header() {
           {showNav && (
             <nav className="ms-auto hidden items-center gap-1 rounded-full bg-white/[0.04] p-1 text-sm font-medium md:flex">
               {links.map((l) => (
-                <NavLink key={l.href} item={l} active={pathname === l.href} />
+                <NavLink key={l.href} item={l} active={isActive(pathname, l.href)} />
               ))}
             </nav>
           )}
@@ -70,7 +70,7 @@ export function Header() {
         <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/70 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
           <div className="mx-auto flex max-w-md justify-around px-2 py-1.5">
             {links.map(({ href, label, icon: Icon }) => {
-              const active = pathname === href;
+              const active = isActive(pathname, href);
               return (
                 <Link
                   key={href}
@@ -115,4 +115,8 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       <span className="relative">{item.label}</span>
     </Link>
   );
+}
+
+function isActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }

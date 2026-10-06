@@ -38,7 +38,6 @@ export function MacroBar({ macro, value, target }: { macro: MacroKey; value: num
   );
 }
 
-/** Stacked bar showing where a meal's calories come from. */
 export function MacroSplitBar({ split }: { split: Record<MacroKey, number> }) {
   return (
     <div className="flex h-3 w-full gap-0.5 overflow-hidden rounded-full bg-surface-2">

@@ -18,9 +18,8 @@ export function GoalCard() {
   const current = profile.weightKg;
   const start = weights[0]?.kg ?? current;
   const weeks = weeksToGoal(current, plan);
-  const span = Math.abs(plan.targetWeightKg - start);
-  const done = Math.abs(current - start);
-  const progress = plan.type === "maintain" || span === 0 ? 1 : Math.min(done / span, 1);
+  const span = plan.targetWeightKg - start;
+  const progress = plan.type === "maintain" || span === 0 ? 1 : Math.min(Math.max((current - start) / span, 0), 1);
 
   return (
     <TiltCard className="p-5 sm:p-6">

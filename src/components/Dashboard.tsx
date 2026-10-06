@@ -14,6 +14,7 @@ import { MealCard } from "./MealCard";
 import { useApp } from "./Providers";
 import { TiltCard } from "./ui/TiltCard";
 import { WeightCard } from "./WeightCard";
+import { TodayWorkoutCard } from "./workouts/TodayWorkoutCard";
 
 function greetingKey(hour: number) {
   if (hour < 12) return "morning";
@@ -34,7 +35,6 @@ export function Dashboard() {
   const profile = useStore((s) => s.profile);
   const meals = useStore((s) => s.meals);
 
-  // First visit: set up a profile before showing numbers that depend on it.
   useEffect(() => {
     if (hydrated && !profile) router.replace("/onboarding");
   }, [hydrated, profile, router]);
@@ -56,9 +56,8 @@ export function Dashboard() {
       <motion.header variants={item} className="mb-7">
         <p className="text-sm text-muted">{now.toLocaleDateString(tag, { weekday: "long", month: "long", day: "numeric" })}</p>
         <h1 className="font-display mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-          <span className="text-gradient">{t.greeting[greetingKey(now.getHours())]}</span>
+          {t.greeting[greetingKey(now.getHours())]}
         </h1>
-        <p className="mt-2 text-muted">{t.dashSubtitle}</p>
       </motion.header>
 
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-3">
@@ -92,22 +91,27 @@ export function Dashboard() {
           <WeightCard />
         </motion.div>
 
-        <motion.div variants={item} className="min-w-0">
-          <TiltCard className="p-5 sm:p-6">
-            <h2 className="font-display mb-2 font-bold">{t.today}</h2>
-            {today.length === 0 ? (
-              <p className="py-4 text-sm text-muted">{t.noMeals}</p>
-            ) : (
-              <ul className="-mx-2 space-y-1">
-                <AnimatePresence initial={false}>
-                  {today.map((m) => (
-                    <MealCard key={m.id} meal={m} />
-                  ))}
-                </AnimatePresence>
-              </ul>
-            )}
-          </TiltCard>
-        </motion.div>
+        <div className="min-w-0 space-y-5">
+          <motion.div variants={item}>
+            <TodayWorkoutCard />
+          </motion.div>
+          <motion.div variants={item}>
+            <TiltCard className="p-5 sm:p-6">
+              <h2 className="font-display mb-2 font-bold">{t.today}</h2>
+              {today.length === 0 ? (
+                <p className="py-4 text-sm text-muted">{t.noMeals}</p>
+              ) : (
+                <ul className="-mx-2 space-y-1">
+                  <AnimatePresence initial={false}>
+                    {today.map((m) => (
+                      <MealCard key={m.id} meal={m} />
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              )}
+            </TiltCard>
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );

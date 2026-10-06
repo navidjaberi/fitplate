@@ -31,7 +31,6 @@ function reducer(state: ScanState, action: Action): ScanState {
   }
 }
 
-/** Owns the photo → API → result flow, including cancelling a stale request when a new photo arrives. */
 export function useScanner(locale: Locale) {
   const [state, dispatch] = useReducer(reducer, { status: "idle" });
   const abortRef = useRef<AbortController | null>(null);
@@ -58,6 +57,7 @@ export function useScanner(locale: Locale) {
           body: JSON.stringify({ image, locale }),
           signal: controller.signal,
         });
+        if (res.status === 413) return dispatch({ type: "fail", error: "image_too_large" });
         const data = (await res.json()) as AnalyzeResponse;
         if (data.ok) dispatch({ type: "done", analysis: data.analysis, mode: data.mode });
         else dispatch({ type: "fail", error: data.error });
