@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { MotionConfig } from "motion/react";
+import { registerServiceWorker } from "@/lib/install";
 import { useStore } from "@/lib/store";
 
 type AppInfo = { hydrated: boolean; mode: "live" | "demo" | null };
@@ -16,6 +17,7 @@ export function Providers({ children }: { children: ReactNode }) {
   const locale = useStore((s) => s.locale);
 
   useEffect(() => {
+    registerServiceWorker();
     const isFirstVisit = !localStorage.getItem("fitplate");
     Promise.resolve(useStore.persist.rehydrate()).then(() => {
       if (isFirstVisit && navigator.language.toLowerCase().startsWith("fa")) {

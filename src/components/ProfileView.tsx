@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Check } from "lucide-react";
+import { Check, Download } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useInstall } from "@/lib/install";
 import { planTargets, type GoalPlan, type Macros } from "@/lib/nutrition";
 import { useStore, type Profile } from "@/lib/store";
 import {
@@ -17,6 +18,7 @@ import {
   isProfileValid,
   TargetsSummary,
 } from "./PlanForm";
+import { Logo } from "./Logo";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -130,6 +132,8 @@ export function ProfileView() {
         </div>
       </Section>
 
+      <InstallSection />
+
       <div className="sticky bottom-20 z-20 flex items-center justify-between gap-3 rounded-full border border-line bg-bg/70 p-2 ps-5 shadow-[0_20px_50px_-15px_rgb(0_0_0/0.9)] backdrop-blur-xl md:bottom-4">
         <button
           onClick={() => window.confirm(t.clearConfirm) && store.clearAll()}
@@ -147,5 +151,31 @@ export function ProfileView() {
         </button>
       </div>
     </div>
+  );
+}
+
+function InstallSection() {
+  const { t } = useI18n();
+  const { state, install } = useInstall();
+  if (state === "installed") return null;
+  return (
+    <Section title={t.installTitle}>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Logo className="size-12 shrink-0" />
+          <div className="text-sm">
+            <p>{t.installIntro}</p>
+            {state === "ios" && <p className="mt-1 text-muted">{t.installIos}</p>}
+            {state === "unsupported" && <p className="mt-1 text-muted">{t.installUnsupported}</p>}
+          </div>
+        </div>
+        {state === "prompt" && (
+          <button onClick={install} className="btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold">
+            <Download className="size-4" />
+            {t.install}
+          </button>
+        )}
+      </div>
+    </Section>
   );
 }

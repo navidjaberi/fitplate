@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { ChartNoAxesColumn, Dumbbell, House, Languages, ScanLine, UserRound, type LucideIcon } from "lucide-react";
+import { ChartNoAxesColumn, Download, Dumbbell, House, Languages, ScanLine, UserRound, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useInstall } from "@/lib/install";
 import { useStore } from "@/lib/store";
 import { useApp } from "./Providers";
 import { Logo } from "./Logo";
@@ -16,6 +17,7 @@ export function Header() {
   const { mode } = useApp();
   const setLocale = useStore((s) => s.setLocale);
   const pathname = usePathname();
+  const { state: installState, install } = useInstall();
 
   const links: NavItem[] = [
     { href: "/", label: t.navDashboard, icon: House },
@@ -28,7 +30,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 -mx-4 mb-8 px-4 pt-4 sm:-mx-6 sm:px-6">
+      <header className="sticky top-0 z-30 -mx-4 mb-8 px-4 pt-[max(1rem,env(safe-area-inset-top))] sm:-mx-6 sm:px-6">
         <div className="flex items-center gap-3 rounded-full border border-line bg-bg/60 py-2 ps-4 pe-2 shadow-[0_10px_40px_-10px_rgb(0_0_0/0.8),inset_0_1px_0_rgb(255_255_255/0.06)] backdrop-blur-xl">
           <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
             <Logo />
@@ -53,10 +55,22 @@ export function Header() {
             </nav>
           )}
 
+          {installState === "prompt" && (
+            <button
+              onClick={install}
+              className={`flex h-9 items-center gap-1.5 rounded-full bg-accent/15 px-3 text-sm font-semibold text-accent transition hover:bg-accent/25 ${
+                showNav ? "max-md:ms-auto" : "ms-auto"
+              }`}
+            >
+              <Download className="size-4" />
+              {t.install}
+            </button>
+          )}
+
           <button
             onClick={() => setLocale(locale === "fa" ? "en" : "fa")}
             className={`flex h-9 items-center gap-1.5 rounded-full px-3 text-sm text-muted transition hover:bg-white/5 hover:text-ink ${
-              showNav ? "max-md:ms-auto" : "ms-auto"
+              installState === "prompt" ? "" : showNav ? "max-md:ms-auto" : "ms-auto"
             }`}
             aria-label={t.language}
           >
