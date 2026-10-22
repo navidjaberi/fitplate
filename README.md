@@ -24,6 +24,7 @@ FitPlate builds daily calorie and macro targets from your body and your goal, th
 - **Photo to nutrition.** Camera capture on phones, file upload, drag and drop, or paste from the clipboard. Each item gets an editable portion multiplier, and items the model got wrong can be removed.
 - **Workout plans.** Pick training days, equipment (full gym, dumbbells or none) and experience, and FitPlate builds a weekly split (full body, upper/lower or push/pull/legs) with sets, rep ranges and rest set by your goal. Log each session set by set with a rest timer; the next session prefills your last loads and adds 2.5 kg once you hit the top of the rep range on every set. The dashboard shows today's workout and the week at a glance.
 - **Progress**: 7-day calorie chart against the goal line, daily average and days on target.
+- **Installable.** FitPlate is a PWA: install it from the header or the profile page (or Add to Home Screen on iPhone) and it opens full screen with its own icon. A service worker caches the pages, so logs, plans and history open without a connection; only photo analysis needs the network.
 - **Bilingual** (English / فارسی) with RTL layout, Persian digits, Persian-digit input and the Persian calendar via `Intl`.
 - **Demo mode**: without an API key the app returns realistic sample meals, so the whole flow can be shown without any cost.
 
