@@ -52,6 +52,11 @@ const en = {
   activities: { sedentary: "Sedentary", light: "Light", moderate: "Moderate", active: "Very active" },
   save: "Save",
   language: "Language",
+  install: "Install",
+  installTitle: "Install the app",
+  installIntro: "Add FitPlate to your home screen. It opens full screen and works without a connection.",
+  installIos: "In Safari, tap Share, then Add to Home Screen.",
+  installUnsupported: "If your browser has no install option, open this page in Chrome or Safari on your phone.",
   clearData: "Delete all meals",
   clearConfirm: "Delete every logged meal? This can't be undone.",
   errors: {
@@ -236,6 +241,11 @@ const fa: Dict = {
   activities: { sedentary: "کم‌تحرک", light: "سبک", moderate: "متوسط", active: "خیلی فعال" },
   save: "ذخیره",
   language: "زبان",
+  install: "نصب",
+  installTitle: "نصب اپ",
+  installIntro: "فیت‌پلیت رو به صفحه‌ی اصلی گوشی اضافه کن. تمام‌صفحه باز می‌شه و بدون اینترنت هم کار می‌کنه.",
+  installIos: "توی Safari دکمه‌ی Share رو بزن، بعد Add to Home Screen.",
+  installUnsupported: "اگه مرورگرت گزینه‌ی نصب نداره، این صفحه رو توی Chrome یا Safari گوشی باز کن.",
   clearData: "حذف همه وعده‌ها",
   clearConfirm: "همه وعده‌های ثبت‌شده حذف بشن؟ قابل برگشت نیست.",
   errors: {

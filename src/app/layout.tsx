@@ -13,10 +13,14 @@ const unbounded = Unbounded({ variable: "--font-unbounded", subsets: ["latin"] }
 export const metadata: Metadata = {
   title: "FitPlate · Nutrition and fitness dashboard",
   description: "Personal calorie and macro targets, photo-based meal logging, and progress tracking.",
+  applicationName: "FitPlate",
+  appleWebApp: { capable: true, title: "FitPlate", statusBarStyle: "black-translucent" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
   themeColor: "#06070a",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
